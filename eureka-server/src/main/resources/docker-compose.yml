@@ -1,0 +1,39 @@
+version: '2'
+services:
+
+  eureka1:
+    image: eureka-server:2.0.0
+    container_name: eureka1
+    hostname: eureka1
+    networks:
+      - eureka-net
+    ports:
+      - 8761:8761
+    environment:
+      - spring.profiles.active=eureka1
+
+  eureka2:
+    image: eureka-server:2.0.0
+    container_name: eureka2
+    hostname: eureka2
+    networks:
+      - eureka-net
+    ports:
+      - 8762:8762
+    environment:
+      - spring.profiles.active=eureka2
+
+  eureka3:
+    image: eureka-server:2.0.0
+    container_name: eureka3
+    hostname: eureka3
+    networks:
+      - eureka-net
+    ports:
+      - 8763:8763
+    environment:
+      - spring.profiles.active=eureka3
+
+networks:
+  eureka-net:
+    driver: bridge

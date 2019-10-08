@@ -1,0 +1,8 @@
+#-------------------------------------->>* Eureka-Server 注册中心 *<<--------------------------------------#
+spring:
+  application:
+    name: eureka-server     # 微服务名称
+  profiles:
+    active: eureka1         # 环境配置文件
+
+

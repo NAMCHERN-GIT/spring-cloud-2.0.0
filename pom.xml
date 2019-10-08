@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.chennan.cloud</groupId>
+    <artifactId>spring-cloud</artifactId>
+    <version>2.0.0</version>
+    <modules>
+        <module>eureka-server</module>
+    </modules>
+    <packaging>pom</packaging>
+    <description>微服务2.0版本</description>
+
+    <properties>
+        <!-- java版本设置 -->
+        <java.version>1.8</java.version>
+        <!-- maven编译时java版本 -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven-resources-plugin>3.1.0</maven-resources-plugin>
+        <!-- 项目源代码编码格式 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <docker.host>http://192.168.232.151:2375</docker.host>
+
+        <!-- 单元测试版本 -->
+        <junit.version>4.12</junit.version>
+
+        <!-- 工具 -->
+        <!-- lombok插件版本 -->
+        <lombok.version>1.18.8</lombok.version>
+        <!-- apache lang3 工具包版本 -->
+        <commons-lang3.version>3.9</commons-lang3.version>
+        <!-- fastJson 版本 -->
+        <fastjson.version>1.2.59</fastjson.version>
+
+        <!-- 数据库 -->
+        <!-- mysql 数据库驱动包版本 -->
+        <mysql.version>8.0.17</mysql.version>
+
+        <!-- 连接池 -->
+        <!-- 阿里druid连接池版本 -->
+        <druid-spring-boot.version>1.1.18</druid-spring-boot.version>
+
+        <!-- 持久层 -->
+        <mybatis-plus-boot.version>3.2.0</mybatis-plus-boot.version>
+        <p6spy.version>3.8.6</p6spy.version>
+
+        <!-- lcn -->
+        <txlcn.version>5.0.2.RELEASE</txlcn.version>
+
+        <!-- spring-boot 版本号 -->
+        <spring-boot.version>2.1.8.RELEASE</spring-boot.version>
+
+        <!-- spring-cloud 版本号 -->
+        <spring-cloud.version>Greenwich.SR3</spring-cloud.version>
+
+
+        <!-- 插件版本 -->
+        <docker-maven-plugin.version>1.2.0</docker-maven-plugin.version>
+    </properties>
+
+    <!-- 供继承者使用，按需引入依赖,类似于java的抽象父类定义 -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- 单元测试依赖包引入 -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+            <!-- lombok 依赖包引入 -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <!-- apache lang3 工具包引入 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <!-- fastJson依赖 -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
+            <!-- mysql驱动依赖 -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+            <!-- 阿里druid连接池 -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-starter</artifactId>
+                <version>${druid-spring-boot.version}</version>
+            </dependency>
+            <!-- mybatis-plus-boot 依赖 -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatis-plus-boot.version}</version>
+            </dependency>
+            <!-- p6spy -->
+            <dependency>
+                <groupId>p6spy</groupId>
+                <artifactId>p6spy</artifactId>
+                <version>${p6spy.version}</version>
+            </dependency>
+            <!-- tm -->
+            <dependency>
+                <groupId>com.codingapi.txlcn</groupId>
+                <artifactId>txlcn-tm</artifactId>
+                <version>${txlcn.version}</version>
+            </dependency>
+            <!--tc-->
+            <dependency>
+                <groupId>com.codingapi.txlcn</groupId>
+                <artifactId>txlcn-tc</artifactId>
+                <version>${txlcn.version}</version>
+            </dependency>
+            <!--tc与tm通讯-->
+            <dependency>
+                <groupId>com.codingapi.txlcn</groupId>
+                <artifactId>txlcn-txmsg-netty</artifactId>
+                <version>${txlcn.version}</version>
+            </dependency>
+            <!-- spring-boot 依赖 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- spring-cloud 依赖 -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <!-- maven打包编译时，是否跳过单元测试  skipTests=true 跳过 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20.1</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+
+            <!-- spring-boot 插件,需要打包执行主类信息 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- 打包源代码 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <!-- 绑定source插件到Maven的生命周期,并在生命周期后执行绑定的source的goal -->
+                <executions>
+                    <execution>
+                        <!-- 绑定source插件到Maven的生命周期 -->
+                        <phase>compile</phase>
+                        <!--在生命周期后执行绑定的source插件的goals -->
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- 阿里云镜像仓库地址 -->
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>aliyun maven</name>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+            <layout>default</layout>
+            <!-- 是否开启发布版构件下载 -->
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <!-- 是否开启快照版构件下载 -->
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+
+</project>
