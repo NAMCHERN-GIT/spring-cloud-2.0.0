@@ -6,7 +6,7 @@ services:
     container_name: eureka1
     hostname: eureka1
     networks:
-      - eureka-net
+      - cloud-net
     ports:
       - 8761:8761
     environment:
@@ -17,7 +17,7 @@ services:
     container_name: eureka2
     hostname: eureka2
     networks:
-      - eureka-net
+      - cloud-net
     ports:
       - 8762:8762
     environment:
@@ -28,12 +28,12 @@ services:
     container_name: eureka3
     hostname: eureka3
     networks:
-      - eureka-net
+      - cloud-net
     ports:
       - 8763:8763
     environment:
       - spring.profiles.active=eureka3
 
 networks:
-  eureka-net:
+  cloud-net:
     driver: bridge

@@ -1,0 +1,26 @@
+version: '2'
+services:
+
+   # rabbitmq 容器创建
+   rabbitmq:
+     image: rabbitmq:management
+     container_name: rabbitmq
+     hostname: rabbitmq
+     networks:
+       - cloud-net
+     ports:
+       - 5672:5672
+       - 15672:15672
+
+   config-server:
+     image: config-server:2.0.0
+     container_name: config-server
+     hostname: config-server
+     networks:
+       - cloud-net
+     ports:
+       - 3344:3344
+
+networks:
+  cloud-net:
+    driver: bridge
