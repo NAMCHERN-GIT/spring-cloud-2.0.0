@@ -1,0 +1,31 @@
+#-------------------------------------->>* Config-Server 注册中心 *<<--------------------------------------#
+server:
+  port: 3344
+
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/NAMCHERN-GIT/spring-cloud-config.git
+      label: master
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+
+eureka:
+  client:
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://eureka1:8761/eureka/,http://eureka2:8762/eureka/,http://eureka3:8763/eureka/  # 集群配置
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: bus-refresh

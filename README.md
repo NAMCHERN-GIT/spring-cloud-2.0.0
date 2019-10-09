@@ -6,3 +6,6 @@
 ## 二、Eureka服务注册中心服务器集群搭建
 参考[文档eureka-server](eureka-server/README.md)
 
+## 三、Spring Cloud 配置中心
+参考[文档config-server](config-server/README.md)
+
