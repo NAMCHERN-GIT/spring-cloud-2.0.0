@@ -1,0 +1,80 @@
+version: '2'
+services:
+
+  redis-server:
+    image: redis:latest
+    container_name: redis-server
+    restart: always
+    command: redis redis-server --appendonly yes
+    ports:
+      - 6379:6379
+    volumes:
+      - /docker/volume/redis/data:/data
+    hostname: redis-server
+    networks:
+      - net
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    restart: always
+    hostname: rabbitmq
+    networks:
+      - net
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  mysql-server:
+    image: mysql:5.7
+    container_name: mysql-server
+    restart: always
+    hostname: mysql-server
+    ports:
+      - 3306:3306
+    volumes:
+      - /docker/volume/mysql/conf:/etc/mysql/conf.d
+      - /docker/volume/mysql/data:/var/lib/mysql
+      - /docker/volume/mysql/logs:/logs
+    environment:
+        - MYSQL_ROOT_PASSWORD=123456
+        - MYSQL_USER=chennan
+        - MYSQL_PASS=123456
+    command: [
+      '--character-set-server=utf8',
+      '--collation-server=utf8_general_ci',
+      '--lower_case_table_names=1',
+      '--sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'
+    ]
+    networks:
+      - net
+
+  fast-dfs-tracker:
+    image: season/fastdfs:latest
+    container_name: fast-dfs-tracker
+    restart: always
+    hostname: fast-dfs-tracker
+    ports:
+      - 22122:22122
+    volumes:
+      - /docker/volume/fastdfs/tracker:/var/fdfs
+    command: tracker
+    networks:
+      - net
+
+  fast-dfs-storage:
+    image: season/fastdfs
+    container_name: fast-dfs-storage
+    restart: always
+    hostname: fast-dfs-storage
+    volumes:
+      - /docker/volume/fastdfs/storage:/var/fdfs
+    environment:
+      - TRACKER_SERVER=fast-dfs-tracker:22122
+    command: storage
+    networks:
+      - net
+
+networks:
+  net:
+    driver: bridge

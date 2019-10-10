@@ -195,6 +195,50 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>1.2.0</version>
+                <executions>
+                    <!-- 指定在install阶段执行 build-image 任务 -->
+                    <execution>
+                        <id>build-image</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <!-- 远程操作docker信息配置，实现了免Dockerfile文件部署 -->
+                <configuration>
+                    <!-- docker 远程连接地址 -->
+                    <dockerHost>${docker.host}</dockerHost>
+                    <!-- 镜像名称 -->
+                    <imageName>${project.artifactId}</imageName>
+                    <!-- 镜像版本 -->
+                    <imageTags>
+                        <imageTag>${project.version}</imageTag>
+                    </imageTags>
+                    <!-- 允许覆盖docker images中的镜像 -->
+                    <forceTags>true</forceTags>
+                    <!-- 从基本镜像 java:8 的基础上构建-->
+                    <baseImage>java:8</baseImage>
+                    <!-- 镜像维护者的姓名和邮箱地址 -->
+                    <maintainer><![CDATA[chen.nan<namchern@aliyun.com>]]></maintainer>
+                    <!-- 容器数据卷，用于数据保存和持久化工作 -->
+                    <volumes>/app</volumes>
+                    <!-- 容器启动时运行的命令 -->
+                    <entryPoint>["java", "-jar", "/${project.build.finalName}.jar"]</entryPoint>
+                    <!-- 打包进入镜像的资源文件 -->
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
