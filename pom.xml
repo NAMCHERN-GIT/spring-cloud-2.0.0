@@ -25,7 +25,13 @@
         <!-- 项目源代码编码格式 -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <!-- docker服务器的地址 -->
         <docker.host>http://192.168.232.151:2375</docker.host>
+        <!-- 基础java8 docker镜像 -->
+        <!-- 自己使用Dockerfile创建的java8 最小image -->
+        <base.image>mini-linux:2.0.0</base.image>
+        <!-- dockerHub 官方的java8 image -->
+        <!-- <base.image>java:8</base.image> -->
 
         <!-- 单元测试版本 -->
         <junit.version>4.12</junit.version>
@@ -221,8 +227,8 @@
                     </imageTags>
                     <!-- 允许覆盖docker images中的镜像 -->
                     <forceTags>true</forceTags>
-                    <!-- 从基本镜像 java:8 的基础上构建-->
-                    <baseImage>java:8</baseImage>
+                    <!-- 从基础镜像上构建新的image -->
+                    <baseImage>${base.image}</baseImage>
                     <!-- 镜像维护者的姓名和邮箱地址 -->
                     <maintainer><![CDATA[chen.nan<namchern@aliyun.com>]]></maintainer>
                     <!-- 容器数据卷，用于数据保存和持久化工作 -->
