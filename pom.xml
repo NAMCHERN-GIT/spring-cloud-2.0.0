@@ -9,6 +9,7 @@
     <version>2.0.0</version>
     <!-- 子模块 -->
     <modules>
+        <module>common</module>
         <module>eureka-server</module>
         <module>config-server</module>
     </modules>
