@@ -103,16 +103,5 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         endpoints.tokenServices(defaultTokenServices());
         // 默认只允许 post 请求进行登录，追加get请求
         // endpoints.allowedTokenEndpointRequestMethods(HttpMethod.POST, HttpMethod.GET);
-
-        // 参考 https://segmentfault.com/a/1190000020317220?utm_source=tag-newest
-        endpoints.tokenEnhancer(((oAuth2AccessToken, oAuth2Authentication) -> {
-            DefaultOAuth2AccessToken token = (DefaultOAuth2AccessToken) oAuth2AccessToken;
-            UserDetailsImpl userDetails = (UserDetailsImpl) oAuth2Authentication.getDetails();
-            Map<String, Object> map = new LinkedHashMap<>();
-            map.put("roleList", userDetails.getRoleList());
-            map.put("permissionList", userDetails.getPermissionList());
-            token.setAdditionalInformation(map);
-            return  token;
-        }));
     }
 }
