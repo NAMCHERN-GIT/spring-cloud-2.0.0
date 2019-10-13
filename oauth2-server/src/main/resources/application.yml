@@ -1,0 +1,56 @@
+#------------------------------------->* oauth2-server 认证与授权中心 *<-------------------------------------#
+server:
+  port: 6000
+
+spring:
+  application:
+    name: oauth2-server
+  http:
+    encoding:                                     # 编码配置
+      force: true
+      charset: UTF-8
+      enabled: true
+  datasource:
+    hikari:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://mysql-server:3306/oauth2?characterEncoding=UTF-8&useSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+      username: root
+      password: 123456
+      read-only: false
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 15
+  zipkin:
+    base-url: http://zipkin-server:9000
+  sleuth:
+    sampler:
+      probability: 1.0
+
+# mybatis配置
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**Mapper.xml
+  type-aliases-package: com.chennan.cloud.*.bo
+  global-config:
+    db-config:
+      logic-delete-value: 0
+      logic-not-delete-value: 1
+      id-type: auto
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}                             # 实例别名
+    prefer-ip-address: true                                             # 访问路径可以显示ip地址
+  client:
+    service-url:
+      defaultZone: http://eureka1:8761/eureka/,http://eureka2:8762/eureka/,http://eureka3:8763/eureka/  # 集群配置
+
+# txLcn-tc 配置
+tx-lcn:
+  client:
+    manager-address: txlcn-tm:8070
+
+

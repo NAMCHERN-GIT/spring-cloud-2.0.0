@@ -12,6 +12,10 @@
         <module>common</module>
         <module>eureka-server</module>
         <module>config-server</module>
+        <module>zipkin-server</module>
+        <module>txlcn-tm</module>
+        <module>oauth2-server</module>
+        <module>zuul-gateway</module>
     </modules>
     <packaging>pom</packaging>
     <description>微服务2.0版本</description>
@@ -27,7 +31,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- docker服务器的地址 -->
-        <docker.host>http://192.168.232.151:2375</docker.host>
+        <docker.host>http://docker-server:2375</docker.host>
         <!-- 基础java8 docker镜像 -->
         <!-- 自己使用Dockerfile创建的java8 最小image -->
         <base.image>mini-linux:2.0.0</base.image>
@@ -49,16 +53,15 @@
         <!-- mysql 数据库驱动包版本 -->
         <mysql.version>8.0.17</mysql.version>
 
-        <!-- 连接池 -->
-        <!-- 阿里druid连接池版本 -->
-        <druid-spring-boot.version>1.1.18</druid-spring-boot.version>
-
         <!-- 持久层 -->
         <mybatis-plus-boot.version>3.2.0</mybatis-plus-boot.version>
         <p6spy.version>3.8.6</p6spy.version>
 
         <!-- lcn -->
         <txlcn.version>5.0.2.RELEASE</txlcn.version>
+
+        <!-- zipkin -->
+        <zipkin.version>2.12.9</zipkin.version>
 
         <!-- spring-boot 版本号 -->
         <spring-boot.version>2.1.8.RELEASE</spring-boot.version>
@@ -104,12 +107,6 @@
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.version}</version>
             </dependency>
-            <!-- 阿里druid连接池 -->
-            <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>druid-spring-boot-starter</artifactId>
-                <version>${druid-spring-boot.version}</version>
-            </dependency>
             <!-- mybatis-plus-boot 依赖 -->
             <dependency>
                 <groupId>com.baomidou</groupId>
@@ -139,6 +136,18 @@
                 <groupId>com.codingapi.txlcn</groupId>
                 <artifactId>txlcn-txmsg-netty</artifactId>
                 <version>${txlcn.version}</version>
+            </dependency>
+            <!-- 引入 zipkin-server 依赖 -->
+            <dependency>
+                <groupId>io.zipkin.java</groupId>
+                <artifactId>zipkin-server</artifactId>
+                <version>${zipkin.version}</version>
+            </dependency>
+            <!-- 引入zipkin autoconfigure-ui 依赖 -->
+            <dependency>
+                <groupId>io.zipkin.java</groupId>
+                <artifactId>zipkin-autoconfigure-ui</artifactId>
+                <version>${zipkin.version}</version>
             </dependency>
             <!-- spring-boot 依赖 -->
             <dependency>
@@ -202,6 +211,8 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- docker 发布插件 -->
             <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>

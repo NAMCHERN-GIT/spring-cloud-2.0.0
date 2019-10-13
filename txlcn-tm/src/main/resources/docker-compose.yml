@@ -1,0 +1,16 @@
+version: '2'
+services:
+
+  txlcn-tm:
+    image: txlcn-tm:2.0.0
+    container_name: txlcn-tm
+    hostname: txlcn-tm
+    networks:
+      - base_net
+    ports:
+      - 7970:7970
+      - 8070:8070
+
+networks:
+  base_net:
+    external: true

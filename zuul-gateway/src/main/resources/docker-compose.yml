@@ -1,0 +1,15 @@
+version: '2'
+services:
+
+  zuul-gateway:
+    image: zuul-gateway:2.0.0
+    container_name: zuul-gateway
+    hostname: zuul-gateway
+    networks:
+      - base_net
+    ports:
+      - 8000:8000
+
+networks:
+  base_net:
+    external: true

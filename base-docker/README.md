@@ -21,7 +21,7 @@ cd jre1.8
 ```
 * 删除其中一些没用的文件
 ```shell script
-rm -rf COPYRIGHT LICENSE plugin/ README THIRDPARTYLICENSEREADME THIRDPARTYLICENSEREADME-JAVAFX.txt Welcome.html
+rm -rf COPYRIGHT LICENSE plugin/ README THIRDPARTYLICENSEREADME.txt THIRDPARTYLICENSEREADME-JAVAFX.txt Welcome.html
 rm -rf lib/plugin.jar \
        lib/ext/jfxrt.jar \
        bin/javaws \

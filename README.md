@@ -1,5 +1,5 @@
 # spring cloud 微服务搭建过程
-## 一、基本环境搭建
+## 一、最小化java8基本环境搭建
 参考[文档base-docker](base-docker/README.md)
 ## 二、spring-cloud母工程创建
 ### 母工程pom文件编写  
@@ -10,4 +10,7 @@
 
 ## 四、Spring Cloud 配置中心
 参考[文档config-server](config-server/README.md)
+
+## 五、zipkin服务链路追踪服务中心
+参考[文档zipkin-server](zipkin-server/README.md)
 

@@ -1,0 +1,15 @@
+version: '2'
+services:
+
+  config-server:
+    image: zipkin-server:2.0.0
+    container_name: zipkin-server
+    hostname: zipkin-server
+    networks:
+      - base_net
+    ports:
+      - 9000:9000
+
+networks:
+  base_net:
+    external: true

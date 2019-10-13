@@ -1,0 +1,15 @@
+version: '2'
+services:
+
+  oauth2-server:
+    image: oauth2-server:2.0.0
+    container_name: oauth2-server
+    hostname: oauth2-server
+    networks:
+      - base_net
+    ports:
+      - 6000:6000
+
+networks:
+  base_net:
+    external: true

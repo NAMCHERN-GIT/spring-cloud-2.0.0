@@ -6,8 +6,8 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
 /**
  * spring boot 启动类
- * <br>{@link SpringBootApplication} 微服务启动注解
- * <br>{@link EnableEurekaServer} eureka server启动
+ * @see SpringBootApplication 微服务启动注解<br>
+ * @see EnableEurekaServer eureka server启动<br>
  * @author chen.nan
  */
 @SpringBootApplication

@@ -7,15 +7,16 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 
 /**
  * Config server 入口启动类
- * {@link @EnableConfigServer} 启动config server配置中心
- *
- * spring-cloud-bus 消息总线通知刷新接口 POST /actuator/bus-refresh
+ * @see EnableConfigServer 启动config server配置中心
+ * <br>
+ * <p>
+ * spring-cloud-bus 消息总线通知刷新接口 POST /actuator/bus-refreshz
  *
  * 三种访问形式：
  *  1.http://127.0.0.1:3344/application-dev.yml
  *  2.http://127.0.0.1:3344/application/dev/master
  *  3.http://127.0.0.1:3344/master/application-dev.yml
- *
+ *  </p>
  * @author chen.nan
  *
  */

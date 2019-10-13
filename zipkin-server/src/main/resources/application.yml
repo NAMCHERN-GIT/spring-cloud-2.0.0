@@ -1,0 +1,22 @@
+#-------------------------------------->>* zipkin-server 服务链路追踪服务 *<<--------------------------------------#
+# 设置zipkin访问端口协议
+armeria:
+  ports:
+    - port: 9000
+      protocols:
+        - http
+
+# 必须设置属性 server.compression.enabled = true
+server:
+  compression:
+    enabled: true
+
+# 必须设置属性 spring.main.web-application-type = none
+# 参考 See https://blog.csdn.net/chenglu6516/article/details/100698050
+# 参考 See https://docs.spring.io/spring-boot/docs/current/reference/html/howto-embedded-web-servers.html.
+# 参考 See https://github.com/line/armeria-examples/blob/master/spring-boot-minimal/src/main/resources/config/application.yml
+spring:
+  application:
+    name: zipkin-server
+  main:
+    web-application-type: none

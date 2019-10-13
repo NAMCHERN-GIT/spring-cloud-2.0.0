@@ -1,0 +1,40 @@
+#----------------------------------------->* zuul-gateway 路由网关配置中心 *<-----------------------------------------#
+server:
+  port: 8000
+
+spring:
+  application:
+    name: zuul-gateway
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://eureka1:8761/eureka/,http://eureka2:8762/eureka/,http://eureka3:8763/eureka/
+
+zuul:
+  ignored-services: "*"
+  routes:
+    oauth2:
+      path: /oauth2/**
+      serviceId: oauth2-server
+      sensitiveHeaders: "*"
+  add-proxy-headers: true
+
+security:
+  oauth2:
+    client:
+      access-token-uri: http://zuul-gateway:${server.port}/oauth2/oauth/token            # 获取token令牌的地址
+      user-authorization-uri: http://zuul-gateway:${server.port}/oauth2/oauth/authorize  # 授权模式访问之授权码模式,参考 https://blog.csdn.net/u013887008/article/details/80616422
+      client-id: web
+    resource:
+      user-info-uri: http://zuul-gateway:${server.port}/oauth2/api/userInfo
+      prefer-token-info: false
+
+info:
+  app:
+    name: ${eureka.instance.instance-id}
+  company:
+    name: www.chennan.com
