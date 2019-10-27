@@ -46,7 +46,8 @@ eureka:
     prefer-ip-address: true                                             # 访问路径可以显示ip地址
   client:
     service-url:
-      defaultZone: http://eureka1:8761/eureka/,http://eureka2:8762/eureka/,http://eureka3:8763/eureka/  # 集群配置
+      # defaultZone: http://eureka1:8761/eureka/,http://eureka2:8762/eureka/,http://eureka3:8763/eureka/  # 集群配置
+      defaultZone: http://eureka:8761/eureka/                                                             # 单机配置
 
 # txLcn-tc 配置
 tx-lcn:

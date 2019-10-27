@@ -12,8 +12,8 @@ eureka:
     prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://eureka1:8761/eureka/,http://eureka2:8762/eureka/,http://eureka3:8763/eureka/
-
+      # defaultZone: http://eureka1:8761/eureka/,http://eureka2:8762/eureka/,http://eureka3:8763/eureka/
+      defaultZone: http://eureka:8761/eureka/
 zuul:
   ignored-services: "*"
   routes:

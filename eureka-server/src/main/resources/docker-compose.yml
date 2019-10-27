@@ -1,41 +1,17 @@
 version: '2'
 services:
 
-  eureka1:
+  eureka:
     image: eureka-server:2.0.0
     container_name: eureka1
     restart: always
-    hostname: eureka1
+    hostname: eureka
     networks:
       - base_net
     ports:
       - 8761:8761
     environment:
-      - spring.profiles.active=eureka1
-
-  eureka2:
-    image: eureka-server:2.0.0
-    container_name: eureka2
-    restart: always
-    hostname: eureka2
-    networks:
-      - base_net
-    ports:
-      - 8762:8762
-    environment:
-      - spring.profiles.active=eureka2
-
-  eureka3:
-    image: eureka-server:2.0.0
-    container_name: eureka3
-    restart: always
-    hostname: eureka3
-    networks:
-      - base_net
-    ports:
-      - 8763:8763
-    environment:
-      - spring.profiles.active=eureka3
+      - spring.profiles.active=eureka
 
 networks:
   base_net:

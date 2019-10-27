@@ -21,8 +21,8 @@ eureka:
   client:
     register-with-eureka: true
     service-url:
-      defaultZone: http://eureka1:8761/eureka/,http://eureka2:8762/eureka/,http://eureka3:8763/eureka/  # 集群配置
-
+      #defaultZone: http://eureka1:8761/eureka/,http://eureka2:8762/eureka/,http://eureka3:8763/eureka/  # 集群配置
+      defaultZone: http://eureka:8761/eureka/
 
 management:
   endpoints:
