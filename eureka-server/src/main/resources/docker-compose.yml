@@ -3,7 +3,7 @@ services:
 
   eureka:
     image: eureka-server:2.0.0
-    container_name: eureka1
+    container_name: eureka
     restart: always
     hostname: eureka
     networks:
