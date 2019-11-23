@@ -1,0 +1,32 @@
+spring:
+  profiles:
+    active: dev
+---
+spring:
+  profiles: dev
+eureka:
+  instance:
+    instance-id: ${spring.application.name}
+    prefer-ip-address: true
+  client:
+    service-url:
+      # defaultZone: http://eureka1:8761/eureka/,http://eureka2:8762/eureka/,http://eureka3:8763/eureka/
+      defaultZone: http://eureka:8761/eureka/
+zuul:
+  ignored-services: "*"
+  routes:
+    oauth2:
+      path: /oauth2/**
+      serviceId: oauth2-server
+      sensitiveHeaders: "*"
+    user:
+      path: /user/**
+      serviceId: user-server
+      sensitiveHeaders: "*"
+  add-proxy-headers: true
+
+info:
+  app:
+    name: ${eureka.instance.instance-id}
+  company:
+    name: www.chennan.com

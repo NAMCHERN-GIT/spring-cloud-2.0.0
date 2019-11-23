@@ -30,10 +30,10 @@ zuul:
 security:
   oauth2:
     client:
-      access-token-uri: http://${spring.application.name}:${server.port}/oauth2/oauth/token            # 获取token令牌的地址
-      user-authorization-uri: http://${spring.application.name}:${server.port}/oauth2/oauth/authorize  # 授权模式访问之授权码模式,参考 https://blog.csdn.net/u013887008/article/details/80616422
+      access-token-uri: http://zuul-gateway:${server.port}/oauth2/oauth/token            # 获取token令牌的地址
+      user-authorization-uri: http://zuul-gateway:${server.port}/oauth2/oauth/authorize  # 授权模式访问之授权码模式,参考 https://blog.csdn.net/u013887008/article/details/80616422
     resource:
-      user-info-uri: http://${spring.application.name}:${server.port}/oauth2/api/userInfo
+      user-info-uri: http://zuul-gateway:${server.port}/oauth2/api/userInfo
       prefer-token-info: false
 
 info:

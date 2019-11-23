@@ -1,0 +1,15 @@
+version: '2'
+services:
+
+  user-server:
+    image: user-server:2.0.0
+    container_name: user-server
+    hostname: user-server
+    networks:
+      - base_net
+    ports:
+      - 8001:8001
+
+networks:
+  base_net:
+    external: true

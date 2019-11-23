@@ -9,7 +9,7 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/NAMCHERN-GIT/spring-cloud-config.git
+          uri: https://gitee.com/namchern/config.git  # git地址
       label: master
   rabbitmq:
     host: rabbitmq

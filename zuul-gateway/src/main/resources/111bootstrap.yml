@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: zuul-gateway
+  cloud:
+    config:
+      name: zuul-gateway.yml
+      profile: dev
+      label: master
+      uri: http://config-server:3344
+      discovery:
+        service-id: config-server
+        enabled: true
+      fail-fast: true
+    bus:
+      enabled: true
+      trace:
+        enabled: true
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}
+    prefer-ip-address: true
+  client:
+    service-url:
+      # defaultZone: http://eureka1:8761/eureka/,http://eureka2:8762/eureka/,http://eureka3:8763/eureka/
+      defaultZone: http://eureka:8761/eureka/
+
+
+

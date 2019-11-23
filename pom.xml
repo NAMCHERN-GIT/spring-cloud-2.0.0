@@ -16,6 +16,7 @@
         <module>txlcn-tm</module>
         <module>oauth2-server</module>
         <module>zuul-gateway</module>
+        <module>user-server</module>
     </modules>
     <packaging>pom</packaging>
     <description>微服务2.0版本</description>

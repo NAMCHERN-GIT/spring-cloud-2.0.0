@@ -1,4 +1,4 @@
-package com.chennan.cloud.oauth2.cfg;
+package com.chennan.cloud.base.cfg;
 
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import org.mybatis.spring.annotation.MapperScan;

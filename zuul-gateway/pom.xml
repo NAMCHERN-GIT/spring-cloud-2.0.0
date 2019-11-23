@@ -49,5 +49,19 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-oauth2</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+
+        <!-- spring cloud bus 消息总线依赖 -->
+        <!-- https://blog.csdn.net/qq_27828675/article/details/83505630 -->
+        <!-- https://blog.51cto.com/12965378/2403913 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+        </dependency>
+
     </dependencies>
 </project>

@@ -2,6 +2,7 @@ package com.chennan.cloud.base.vo;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -10,7 +11,7 @@ import java.util.Objects;
  * 页面响应的类
  * @author chennan
  */
-public class R extends LinkedHashMap<String, Object> {
+public class R extends LinkedHashMap<String, Object> implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final String ERR_CODE   = "errcode";

@@ -44,9 +44,4 @@ public class UserController {
         if (!consumerTokenServices.revokeToken(access_token))return R.err("注销失败");
         return R.ok();
     }
-
-    @GetMapping("list")
-    public R list(){
-        return R.ok().addData(userService.list());
-    }
 }
