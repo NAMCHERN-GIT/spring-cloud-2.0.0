@@ -3,13 +3,16 @@ server:
   port: 6000
 
 spring:
+  # 微服务名称
   application:
     name: oauth2-server
+  # 编码配置
   http:
-    encoding:                                     # 编码配置
+    encoding:
       force: true
       charset: UTF-8
       enabled: true
+  # 数据源配置
   datasource:
     hikari:
       driver-class-name: com.mysql.cj.jdbc.Driver
@@ -21,13 +24,14 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
       maximum-pool-size: 15
+  # 链路追踪配置
   zipkin:
     base-url: http://zipkin-server:9000
   sleuth:
     sampler:
       probability: 1.0
 
-# mybatis配置
+# mybatisPlus配置
 mybatis-plus:
   mapper-locations: classpath:/mapper/**Mapper.xml
   type-aliases-package: com.chennan.cloud.*.bo
@@ -40,6 +44,7 @@ mybatis-plus:
     map-underscore-to-camel-case: true
     cache-enabled: false
 
+# eureka配置
 eureka:
   instance:
     instance-id: ${spring.application.name}                             # 实例别名
