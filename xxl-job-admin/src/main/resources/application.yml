@@ -1,9 +1,18 @@
+# 中间件服务器设置
 server:
   port: 8080
   servlet:
     context-path: /xxl-job-admin
 
+# spring配置
 spring:
+  application:
+    name: xxl-job-admin
+  http:
+    encoding:                                     # 编码配置
+      force: true
+      charset: UTF-8
+      enabled: true
   mvc:
     servlet:
       load-on-startup: 0
@@ -17,13 +26,6 @@ spring:
     request-context-attribute: request
     settings:
       number_format: 0.##########
-  application:
-    name: xxl-job-admin
-  http:
-    encoding:                                     # 编码配置
-      force: true
-      charset: UTF-8
-      enabled: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/xxl_job?characterEncoding=UTF-8&useSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
@@ -51,6 +53,7 @@ spring:
           socketFactory:
             class: javax.net.ssl.SSLSocketFactory
 
+# actuator配置
 management:
   server:
     servlet:
@@ -59,5 +62,6 @@ management:
     mail:
       enabled: false
 
+# mybatis配置
 mybatis:
   mapper-locations: classpath:/mybatis-mapper/*Mapper.xml

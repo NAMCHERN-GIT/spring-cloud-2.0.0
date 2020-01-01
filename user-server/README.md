@@ -1,0 +1,78 @@
+# 微服务用户模块
+开发步骤有以下关键几步接入认证中心
+## 1.pom添加依赖,[参考POM](pom.xml)
+```xml
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-oauth2</artifactId>
+    </dependency>
+```
+## 2.[application.yml配置](src/main/resources/application.yml)
+```yaml
+#------------------------------------->* user-server 用户中心 *<-------------------------------------#
+server:
+  port: 8001
+
+spring:
+  application:
+    name: user-server
+  http:
+    encoding:                                     # 编码配置
+      force: true
+      charset: UTF-8
+      enabled: true
+  datasource:
+    hikari:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://mysql-server:3306/oauth2?characterEncoding=UTF-8&useSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+      username: root
+      password: 123456
+      read-only: false
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 15
+  zipkin:
+    base-url: http://zipkin-server:9000
+  sleuth:
+    sampler:
+      probability: 1.0
+
+# mybatis配置
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**Mapper.xml
+  type-aliases-package: com.chennan.cloud.*.bo
+  global-config:
+    db-config:
+      logic-delete-value: 0
+      logic-not-delete-value: 1
+      id-type: auto
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}                             # 实例别名
+    prefer-ip-address: true                                             # 访问路径可以显示ip地址
+    hostname: docker-server
+  client:
+    service-url:
+      # defaultZone: http://eureka1:8761/eureka/,http://eureka2:8762/eureka/,http://eureka3:8763/eureka/  # 集群配置
+      defaultZone: http://eureka:8761/eureka/                                                             # 单机配置
+
+# txLcn-tc 配置
+tx-lcn:
+  client:
+    manager-address: txlcn-tm:8070
+
+# 接入微服务认证中心
+security:
+  oauth2:
+    resource:
+      id: ${spring.application.name}                                    # 资源编号
+      user-info-uri: http://zuul-gateway:8000/oauth2/api/userInfo       # 与zuul中的配置相对应
+      prefer-token-info: false
+
+```

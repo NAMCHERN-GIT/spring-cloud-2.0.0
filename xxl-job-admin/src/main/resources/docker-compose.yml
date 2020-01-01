@@ -1,0 +1,15 @@
+version: '2'
+services:
+
+  user-server:
+    image: xxl-job-admin:2.0.0
+    container_name: xxl-job-admin
+    hostname: xxl-job-admin
+    networks:
+      - base_net
+    ports:
+      - 5000:5000
+
+networks:
+  base_net:
+    external: true
