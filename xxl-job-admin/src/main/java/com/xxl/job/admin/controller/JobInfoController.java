@@ -1,5 +1,6 @@
 package com.xxl.job.admin.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xxl.job.admin.core.cron.CronExpression;
 import com.xxl.job.admin.core.exception.XxlJobException;
 import com.xxl.job.admin.core.model.XxlJobGroup;
@@ -49,7 +50,7 @@ public class JobInfoController {
 		model.addAttribute("ExecutorBlockStrategyEnum", ExecutorBlockStrategyEnum.values());	    // 阻塞处理策略-字典
 
 		// 执行器列表
-		List<XxlJobGroup> jobGroupList_all =  xxlJobGroupDao.findAll();
+		List<XxlJobGroup> jobGroupList_all =  xxlJobGroupDao.selectList(new QueryWrapper<XxlJobGroup>().lambda().orderByAsc(XxlJobGroup::getOrder));
 
 		// filter group
 		List<XxlJobGroup> jobGroupList = filterJobGroupByRole(request, jobGroupList_all);

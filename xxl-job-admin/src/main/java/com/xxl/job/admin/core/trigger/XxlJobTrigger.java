@@ -40,7 +40,7 @@ public class XxlJobTrigger {
      */
     public static void trigger(int jobId, TriggerTypeEnum triggerType, int failRetryCount, String executorShardingParam, String executorParam) {
         // load data
-        XxlJobInfo jobInfo = XxlJobAdminConfig.getAdminConfig().getXxlJobInfoDao().loadById(jobId);
+        XxlJobInfo jobInfo = XxlJobAdminConfig.getAdminConfig().getXxlJobInfoDao().selectById(jobId);
         if (jobInfo == null) {
             logger.warn(">>>>>>>>>>>> trigger fail, jobId invalid，jobId={}", jobId);
             return;
@@ -49,7 +49,7 @@ public class XxlJobTrigger {
             jobInfo.setExecutorParam(executorParam);
         }
         int finalFailRetryCount = failRetryCount>=0?failRetryCount:jobInfo.getExecutorFailRetryCount();
-        XxlJobGroup group = XxlJobAdminConfig.getAdminConfig().getXxlJobGroupDao().load(jobInfo.getJobGroup());
+        XxlJobGroup group = XxlJobAdminConfig.getAdminConfig().getXxlJobGroupDao().selectById(jobInfo.getJobGroup());
 
         // sharding param
         int[] shardingParam = null;
@@ -57,8 +57,8 @@ public class XxlJobTrigger {
             String[] shardingArr = executorShardingParam.split("/");
             if (shardingArr.length==2 && isNumeric(shardingArr[0]) && isNumeric(shardingArr[1])) {
                 shardingParam = new int[2];
-                shardingParam[0] = Integer.valueOf(shardingArr[0]);
-                shardingParam[1] = Integer.valueOf(shardingArr[1]);
+                shardingParam[0] = Integer.parseInt(shardingArr[0]);
+                shardingParam[1] = Integer.parseInt(shardingArr[1]);
             }
         }
         if (ExecutorRouteStrategyEnum.SHARDING_BROADCAST==ExecutorRouteStrategyEnum.match(jobInfo.getExecutorRouteStrategy(), null)
@@ -105,7 +105,7 @@ public class XxlJobTrigger {
         jobLog.setJobGroup(jobInfo.getJobGroup());
         jobLog.setJobId(jobInfo.getId());
         jobLog.setTriggerTime(new Date());
-        XxlJobAdminConfig.getAdminConfig().getXxlJobLogDao().save(jobLog);
+        XxlJobAdminConfig.getAdminConfig().getXxlJobLogDao().insert(jobLog);
         logger.debug(">>>>>>>>>>> xxl-job trigger start, jobId:{}", jobLog.getId());
 
         // 2、init trigger-param
@@ -178,7 +178,7 @@ public class XxlJobTrigger {
         //jobLog.setTriggerTime();
         jobLog.setTriggerCode(triggerResult.getCode());
         jobLog.setTriggerMsg(triggerMsgSb.toString());
-        XxlJobAdminConfig.getAdminConfig().getXxlJobLogDao().updateTriggerInfo(jobLog);
+        XxlJobAdminConfig.getAdminConfig().getXxlJobLogDao().updateById(jobLog);
 
         logger.debug(">>>>>>>>>>> xxl-job trigger end, jobId:{}", jobLog.getId());
     }

@@ -1,24 +1,14 @@
 package com.xxl.job.admin.dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.xxl.job.admin.core.model.XxlJobLogGlue;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
-
-/**
- * job log for glue
- * @author xuxueli 2016-5-19 18:04:56
- */
 @Mapper
-public interface XxlJobLogGlueDao {
-	
-	public int save(XxlJobLogGlue xxlJobLogGlue);
-	
-	public List<XxlJobLogGlue> findByJobId(@Param("jobId") int jobId);
+public interface XxlJobLogGlueDao extends BaseMapper<XxlJobLogGlue> {
 
-	public int removeOld(@Param("jobId") int jobId, @Param("limit") int limit);
-
-	public int deleteByJobId(@Param("jobId") int jobId);
-	
+	@Delete("DELETE FROM XXL_JOB_LOGGLUE WHERE id NOT IN( SELECT id FROM XXL_JOB_LOGGLUE WHERE `job_id` = #{jobId} ORDER BY update_time desc LIMIT 0, #{limit} ) AND `job_id` = #{jobId}")
+	void removeOld(@Param("jobId") int jobId, @Param("limit") int limit);
 }

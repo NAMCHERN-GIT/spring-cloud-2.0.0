@@ -1,5 +1,6 @@
 package com.xxl.job.admin.core.thread;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xxl.job.admin.core.conf.XxlJobAdminConfig;
 import com.xxl.job.admin.core.model.XxlJobGroup;
 import com.xxl.job.admin.core.model.XxlJobRegistry;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * job registry instance
@@ -31,62 +33,42 @@ public class JobRegistryMonitorHelper {
 				while (!toStop) {
 					try {
 						// auto registry group
-						List<XxlJobGroup> groupList = XxlJobAdminConfig.getAdminConfig().getXxlJobGroupDao().findByAddressType(0);
+						List<XxlJobGroup> groupList = XxlJobAdminConfig.getAdminConfig().getXxlJobGroupDao().selectList(new QueryWrapper<XxlJobGroup>().lambda().eq(XxlJobGroup::getAddressType, 0).orderByAsc(XxlJobGroup::getOrder));
 						if (groupList!=null && !groupList.isEmpty()) {
-
 							// remove dead address (admin/executor)
 							List<Integer> ids = XxlJobAdminConfig.getAdminConfig().getXxlJobRegistryDao().findDead(RegistryConfig.DEAD_TIMEOUT, new Date());
-							if (ids!=null && ids.size()>0) {
-								XxlJobAdminConfig.getAdminConfig().getXxlJobRegistryDao().removeDead(ids);
-							}
-
+							if (ids!=null && ids.size()>0) XxlJobAdminConfig.getAdminConfig().getXxlJobRegistryDao().deleteBatchIds(ids);
 							// fresh online address (admin/executor)
-							HashMap<String, List<String>> appAddressMap = new HashMap<String, List<String>>();
+							HashMap<String, List<String>> appAddressMap = new HashMap<>();
 							List<XxlJobRegistry> list = XxlJobAdminConfig.getAdminConfig().getXxlJobRegistryDao().findAll(RegistryConfig.DEAD_TIMEOUT, new Date());
 							if (list != null) {
 								for (XxlJobRegistry item: list) {
 									if (RegistryConfig.RegistType.EXECUTOR.name().equals(item.getRegistryGroup())) {
 										String appName = item.getRegistryKey();
 										List<String> registryList = appAddressMap.get(appName);
-										if (registryList == null) {
-											registryList = new ArrayList<String>();
-										}
-
-										if (!registryList.contains(item.getRegistryValue())) {
-											registryList.add(item.getRegistryValue());
-										}
+										if (registryList == null) registryList = new ArrayList<>();
+										if (!registryList.contains(item.getRegistryValue())) registryList.add(item.getRegistryValue());
 										appAddressMap.put(appName, registryList);
 									}
 								}
 							}
-
 							// fresh group address
 							for (XxlJobGroup group: groupList) {
 								List<String> registryList = appAddressMap.get(group.getAppName());
-								String addressListStr = null;
-								if (registryList!=null && !registryList.isEmpty()) {
-									Collections.sort(registryList);
-									addressListStr = "";
-									for (String item:registryList) {
-										addressListStr += item + ",";
-									}
-									addressListStr = addressListStr.substring(0, addressListStr.length()-1);
-								}
+								String addressListStr = "";
+								if (registryList != null && !registryList.isEmpty())
+									addressListStr = registryList.stream().sorted().collect(Collectors.joining(","));
 								group.setAddressList(addressListStr);
-								XxlJobAdminConfig.getAdminConfig().getXxlJobGroupDao().update(group);
+								XxlJobAdminConfig.getAdminConfig().getXxlJobGroupDao().updateById(group);
 							}
 						}
 					} catch (Exception e) {
-						if (!toStop) {
-							logger.error(">>>>>>>>>>> xxl-job, job registry monitor thread error:{}", e);
-						}
+						if (!toStop) logger.error(">>>>>>>>>>> xxl-job, job registry monitor thread error", e);
 					}
 					try {
 						TimeUnit.SECONDS.sleep(RegistryConfig.BEAT_TIMEOUT);
 					} catch (InterruptedException e) {
-						if (!toStop) {
-							logger.error(">>>>>>>>>>> xxl-job, job registry monitor thread error:{}", e);
-						}
+						if (!toStop) logger.error(">>>>>>>>>>> xxl-job, job registry monitor thread error", e);
 					}
 				}
 				logger.info(">>>>>>>>>>> xxl-job, job registry monitor thread stop");

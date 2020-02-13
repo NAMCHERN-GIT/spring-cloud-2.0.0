@@ -11,4 +11,20 @@ public class BooleanTest {
         System.out.println(f);
     }
 
+    @Test
+    public void split(){
+        String a = "1,2,,4,5,,d,f,,h";
+        String[] childJobIds = a.split(",");
+        for (String t:childJobIds) {
+            System.out.println(t);
+        }
+    }
+
+    @Test
+    public void join(){
+        String[] childJobIds = {"1","2","3"};
+        String t = String.join(",", childJobIds);
+        System.out.println(t);
+    }
+
 }

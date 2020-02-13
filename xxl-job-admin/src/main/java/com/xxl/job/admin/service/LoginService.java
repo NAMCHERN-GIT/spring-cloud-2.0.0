@@ -1,5 +1,6 @@
 package com.xxl.job.admin.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xxl.job.admin.core.model.XxlJobUser;
 import com.xxl.job.admin.core.util.CookieUtil;
 import com.xxl.job.admin.core.util.I18nUtil;
@@ -19,12 +20,10 @@ import java.math.BigInteger;
  */
 @Configuration
 public class LoginService {
-
     public static final String LOGIN_IDENTITY_KEY = "XXL_JOB_LOGIN_IDENTITY";
 
     @Resource
     private XxlJobUserDao xxlJobUserDao;
-
 
     private String makeToken(XxlJobUser xxlJobUser){
         String tokenJson = JacksonUtil.writeValueAsString(xxlJobUser);
@@ -40,26 +39,16 @@ public class LoginService {
         return xxlJobUser;
     }
 
-
     public ReturnT<String> login(HttpServletRequest request, HttpServletResponse response, String username, String password, boolean ifRemember){
-
         // param
-        if (username==null || username.trim().length()==0 || password==null || password.trim().length()==0){
-            return new ReturnT<String>(500, I18nUtil.getString("login_param_empty"));
-        }
-
+        if (username==null || username.trim().length()==0 || password==null || password.trim().length()==0)
+            return new ReturnT<>(500, I18nUtil.getString("login_param_empty"));
         // valid passowrd
-        XxlJobUser xxlJobUser = xxlJobUserDao.loadByUserName(username);
-        if (xxlJobUser == null) {
-            return new ReturnT<String>(500, I18nUtil.getString("login_param_unvalid"));
-        }
+        XxlJobUser xxlJobUser = xxlJobUserDao.selectOne(new QueryWrapper<XxlJobUser>().lambda().eq(XxlJobUser::getUsername, username));
+        if (xxlJobUser == null) return new ReturnT<>(500, I18nUtil.getString("login_param_unvalid"));
         String passwordMd5 = DigestUtils.md5DigestAsHex(password.getBytes());
-        if (!passwordMd5.equals(xxlJobUser.getPassword())) {
-            return new ReturnT<String>(500, I18nUtil.getString("login_param_unvalid"));
-        }
-
+        if (!passwordMd5.equals(xxlJobUser.getPassword())) return new ReturnT<String>(500, I18nUtil.getString("login_param_unvalid"));
         String loginToken = makeToken(xxlJobUser);
-
         // do login
         CookieUtil.set(response, LOGIN_IDENTITY_KEY, loginToken, ifRemember);
         return ReturnT.SUCCESS;
@@ -67,9 +56,6 @@ public class LoginService {
 
     /**
      * logout
-     *
-     * @param request
-     * @param response
      */
     public ReturnT<String> logout(HttpServletRequest request, HttpServletResponse response){
         CookieUtil.remove(request, response, LOGIN_IDENTITY_KEY);
@@ -78,9 +64,6 @@ public class LoginService {
 
     /**
      * logout
-     *
-     * @param request
-     * @return
      */
     public XxlJobUser ifLogin(HttpServletRequest request, HttpServletResponse response){
         String cookieToken = CookieUtil.getValue(request, LOGIN_IDENTITY_KEY);
@@ -92,16 +75,10 @@ public class LoginService {
                 logout(request, response);
             }
             if (cookieUser != null) {
-                XxlJobUser dbUser = xxlJobUserDao.loadByUserName(cookieUser.getUsername());
-                if (dbUser != null) {
-                    if (cookieUser.getPassword().equals(dbUser.getPassword())) {
-                        return dbUser;
-                    }
-                }
+                XxlJobUser dbUser = xxlJobUserDao.selectOne(new QueryWrapper<XxlJobUser>().lambda().eq(XxlJobUser::getUsername, cookieUser.getUsername()));
+                if (dbUser != null) if (cookieUser.getPassword().equals(dbUser.getPassword())) return dbUser;
             }
         }
         return null;
     }
-
-
 }

@@ -27,10 +27,12 @@ spring:
     settings:
       number_format: 0.##########
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/xxl_job?characterEncoding=UTF-8&useSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+    # driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+    url: jdbc:p6spy:mysql://localhost:3306/xxl_job?characterEncoding=UTF-8&useSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
     username: root
     password: 123456
+    type: com.zaxxer.hikari.HikariDataSource
     hikari:
       read-only: false
       connection-timeout: 30000
@@ -63,5 +65,14 @@ management:
       enabled: false
 
 # mybatis配置
-mybatis:
+mybatis-plus:
   mapper-locations: classpath:/mybatis-mapper/*Mapper.xml
+  type-aliases-package: com.xxl.job.admin.core.model
+  global-config:
+    db-config:
+      id-type: auto
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    # mybatis sql日志打印
+    # log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

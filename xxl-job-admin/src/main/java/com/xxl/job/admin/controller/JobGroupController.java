@@ -1,6 +1,8 @@
 package com.xxl.job.admin.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xxl.job.admin.core.model.XxlJobGroup;
+import com.xxl.job.admin.core.model.XxlJobInfo;
 import com.xxl.job.admin.core.model.XxlJobRegistry;
 import com.xxl.job.admin.core.util.I18nUtil;
 import com.xxl.job.admin.dao.XxlJobGroupDao;
@@ -8,6 +10,7 @@ import com.xxl.job.admin.dao.XxlJobInfoDao;
 import com.xxl.job.admin.dao.XxlJobRegistryDao;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.enums.RegistryConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +38,7 @@ public class JobGroupController {
 	public String index(Model model) {
 
 		// job group (executor)
-		List<XxlJobGroup> list = xxlJobGroupDao.findAll();
+		List<XxlJobGroup> list = xxlJobGroupDao.selectList(new QueryWrapper<XxlJobGroup>().lambda().orderByAsc(XxlJobGroup::getOrder));
 
 		model.addAttribute("list", list);
 		return "jobgroup/jobgroup.index";
@@ -67,7 +70,7 @@ public class JobGroupController {
 			}
 		}
 
-		int ret = xxlJobGroupDao.save(xxlJobGroup);
+		int ret = xxlJobGroupDao.insert(xxlJobGroup);
 		return (ret>0)?ReturnT.SUCCESS:ReturnT.FAIL;
 	}
 
@@ -110,7 +113,7 @@ public class JobGroupController {
 			}
 		}
 
-		int ret = xxlJobGroupDao.update(xxlJobGroup);
+		int ret = xxlJobGroupDao.updateById(xxlJobGroup);
 		return (ret>0)?ReturnT.SUCCESS:ReturnT.FAIL;
 	}
 
@@ -141,25 +144,21 @@ public class JobGroupController {
 	public ReturnT<String> remove(int id){
 
 		// valid
-		int count = xxlJobInfoDao.pageListCount(0, 10, id, -1,  null, null, null);
-		if (count > 0) {
-			return new ReturnT<String>(500, I18nUtil.getString("jobgroup_del_limit_0") );
-		}
+		int count = xxlJobInfoDao.selectCount(new QueryWrapper<XxlJobInfo>().lambda().eq(id > 0, XxlJobInfo::getJobGroup, id));
+		if (count > 0) return new ReturnT<>(500, I18nUtil.getString("jobgroup_del_limit_0") );
 
-		List<XxlJobGroup> allList = xxlJobGroupDao.findAll();
-		if (allList.size() == 1) {
-			return new ReturnT<String>(500, I18nUtil.getString("jobgroup_del_limit_1") );
-		}
+		List<XxlJobGroup> allList = xxlJobGroupDao.selectList(new QueryWrapper<XxlJobGroup>().lambda().orderByAsc(XxlJobGroup::getOrder));
+		if (allList.size() == 1) return new ReturnT<String>(500, I18nUtil.getString("jobgroup_del_limit_1") );
 
-		int ret = xxlJobGroupDao.remove(id);
-		return (ret>0)?ReturnT.SUCCESS:ReturnT.FAIL;
+		int ret = xxlJobGroupDao.deleteById(id);
+		return (ret > 0) ? ReturnT.SUCCESS : ReturnT.FAIL;
 	}
 
 	@RequestMapping("/loadById")
 	@ResponseBody
 	public ReturnT<XxlJobGroup> loadById(int id){
-		XxlJobGroup jobGroup = xxlJobGroupDao.load(id);
-		return jobGroup!=null?new ReturnT<XxlJobGroup>(jobGroup):new ReturnT<XxlJobGroup>(ReturnT.FAIL_CODE, null);
+		XxlJobGroup jobGroup = xxlJobGroupDao.selectById(id);
+		return jobGroup != null ? new ReturnT<>(jobGroup) : new ReturnT<>(ReturnT.FAIL_CODE, null);
 	}
 
 }
