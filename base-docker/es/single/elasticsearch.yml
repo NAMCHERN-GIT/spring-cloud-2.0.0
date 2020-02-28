@@ -1,0 +1,12 @@
+node.name: es
+cluster.name: anchivasoc
+network.host: 0.0.0.0
+http.port: 9200
+node.master: true
+node.data: true
+cluster.initial_master_nodes: ["es"]
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+bootstrap.system_call_filter: false
+bootstrap.memory_lock: true
+indices.fielddata.cache.size: 30%

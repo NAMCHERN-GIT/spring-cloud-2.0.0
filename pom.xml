@@ -18,6 +18,7 @@
         <module>zuul-gateway</module>
         <module>user-server</module>
         <module>xxl-job-admin</module>
+        <module>elasticsearch-api</module>
     </modules>
     <packaging>pom</packaging>
     <description>微服务2.0版本</description>
@@ -54,6 +55,8 @@
         <!-- 数据库 -->
         <!-- mysql 数据库驱动包版本 -->
         <mysql.version>8.0.17</mysql.version>
+
+        <elasticsearch.version>7.6.0</elasticsearch.version>
 
         <!-- 持久层 -->
         <mybatis-plus-boot.version>3.2.0</mybatis-plus-boot.version>
@@ -106,6 +109,19 @@
                 <artifactId>fastjson</artifactId>
                 <version>${fastjson.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${elasticsearch.version}}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-high-level-client</artifactId>
+                <version>${elasticsearch.version}}</version>
+            </dependency>
+
+
             <!-- mysql驱动依赖 -->
             <dependency>
                 <groupId>mysql</groupId>

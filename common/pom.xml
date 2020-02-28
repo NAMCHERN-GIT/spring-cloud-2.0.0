@@ -74,17 +74,16 @@
             </exclusions>
         </dependency>
 
-        <!-- 引入jetty作为内嵌的web容器 -->
+        <!-- 引入undertow作为内嵌的web容器 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jetty</artifactId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
         </dependency>
 
         <!-- spring-boot 单元测试 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <!-- 引入eureka客户端 -->
