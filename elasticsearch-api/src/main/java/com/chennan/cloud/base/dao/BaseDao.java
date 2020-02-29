@@ -1,4 +1,4 @@
-package com.chennan.cloud.base;
+package com.chennan.cloud.base.dao;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -6,6 +6,10 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.chennan.cloud.base.annotation.Document;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -14,6 +18,7 @@ import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.rest.RestStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
@@ -38,8 +43,7 @@ public abstract class BaseDao<T> {
     /**
      * 注入 RestHighLevelClient 客户端
      */
-    @Autowired
-    @Qualifier("clusterNodeClient")
+    @Autowired @Qualifier("clusterNodeClient")
     private void setClient(RestHighLevelClient client) {
         this.client = client;
     }
@@ -74,8 +78,8 @@ public abstract class BaseDao<T> {
             return false;
         }
         CreateIndexRequest request = new CreateIndexRequest(index);
-        CreateIndexResponse createIndexResponse = client.indices().create(request, RequestOptions.DEFAULT);
-        log.info("create index【{}】,desc:\n{}", index, JSON.toJSONString(createIndexResponse, SerializerFeature.PrettyFormat));
+        CreateIndexResponse response = client.indices().create(request, RequestOptions.DEFAULT);
+        log.info("create index【{}】,desc:\n{}", index, JSON.toJSONString(response, SerializerFeature.PrettyFormat));
         return existsIndex(index);
     }
 
@@ -92,7 +96,7 @@ public abstract class BaseDao<T> {
      * @param index 索引名称
      * @param t 对象
      */
-    public void insert(String index, T t) throws IOException {
+    public boolean insert(String index, T t) throws IOException {
         JSONObject data = (JSONObject) JSON.toJSON(t);
         // 判断id
         boolean hasId = data.containsKey("id");
@@ -100,26 +104,69 @@ public abstract class BaseDao<T> {
             data.put("id", UUID.randomUUID().toString());
         else if (!(data.get("id") instanceof String))
             throw new RuntimeException("id 必须为 String 类型");
-        IndexRequest indexRequest = new IndexRequest(index).id(data.getString("id"));
-        indexRequest.source(JSON.toJSONString(data), XContentType.JSON);
-        IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
-        log.info("insert index【{}】 data ,desc:\n{}", index, JSON.toJSONString(indexResponse, SerializerFeature.PrettyFormat));
+        IndexRequest request = new IndexRequest(index).id(data.getString("id"));
+        request.source(JSON.toJSONString(data), XContentType.JSON);
+        IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+        log.info("insert index【{}】 data ,desc:\n{}", index, JSON.toJSONString(response, SerializerFeature.PrettyFormat));
+        return response.status() == RestStatus.CREATED;
     }
 
     /**
      * 插入数据
      * @param t 对象
      */
-    public void insert(T t) throws IOException {
-        insert(getDefaultIndex(), t);
+    public boolean insert(T t) throws IOException {
+        return insert(getDefaultIndex(), t);
+    }
+
+    /**
+     * 根据索引和id查询文档
+     * @param index 索引名称
+     * @param id  主键
+     * @return T 返回查询数据
+     */
+    public Optional<T> get(String index, String id) throws IOException {
+        GetRequest request = new GetRequest(index, id);
+        GetResponse response = client.get(request, RequestOptions.DEFAULT);
+        return Optional.ofNullable(response.isExists() ? JSON.parseObject(response.getSourceAsString(), getGenericClass()) : null);
+    }
+
+    /**
+     * 根据id查询文档
+     * @param id  主键
+     * @return T 返回查询数据
+     */
+    public Optional<T> get(String id) throws IOException {
+        return get(getDefaultIndex(), id);
+    }
+
+    /**
+     * 根据id和索引删除文档
+     * @param index 索引名称
+     * @param id    主键
+     * @return 是否成功
+     */
+    public boolean delete(String index, String id) throws IOException {
+        DeleteRequest request = new DeleteRequest(index, id);
+        DeleteResponse response = client.delete(request, RequestOptions.DEFAULT);
+        return response.status() == RestStatus.OK;
+    }
+
+    /**
+     * 根据id删除文档
+     * @param id    主键
+     * @return 是否成功
+     */
+    public boolean delete(String id) throws IOException {
+        return delete(getDefaultIndex(), id);
     }
 
     /**
      * 获取默认的索引名称
      */
-    public String getDefaultIndex(){
+    private String getDefaultIndex(){
         // 获取Bean的类型
-        Class beanClazz = getGenericClass();
+        Class<T> beanClazz = getGenericClass();
         /* 根据注解获取索引名称 */
         // 获取Bean上所有的注解
         Annotation[] annotations = beanClazz.getAnnotations();
@@ -129,7 +176,7 @@ public abstract class BaseDao<T> {
         if (docOptional.isPresent()){
             Document doc = (Document) docOptional.get();
             String index = doc.index();
-            String type = doc.type();
+            String type = doc.type();   // type属性 在es 8.x版本可能要删除
             log.info("index is 【{}】，type is 【{}】", index,  type);
             if (StringUtils.isNotBlank(index)) return index;
         }
@@ -141,7 +188,7 @@ public abstract class BaseDao<T> {
      * 获取泛型 T 的类型Class
      */
     @SuppressWarnings("unchecked")
-    private Class getGenericClass(){
+    private Class<T> getGenericClass(){
         return (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 

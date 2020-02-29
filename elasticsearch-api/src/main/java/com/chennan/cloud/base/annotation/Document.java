@@ -1,7 +1,5 @@
 package com.chennan.cloud.base.annotation;
 
-import org.springframework.core.annotation.AliasFor;
-
 import java.lang.annotation.*;
 
 @Documented
@@ -15,7 +13,7 @@ public @interface Document {
     String index() default "";
 
     /**
-     * 所在的文档 type
+     * 所在的文档 type，elasticsearch type属性 在es 8.x版本可能要删除
      */
     String type() default "";
 

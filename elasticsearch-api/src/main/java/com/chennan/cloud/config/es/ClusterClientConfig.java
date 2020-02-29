@@ -1,9 +1,11 @@
 package com.chennan.cloud.config.es;
 
-import com.chennan.cloud.config.es.component.HttpHosts;
+import com.chennan.cloud.config.es.co.Host;
+import com.chennan.cloud.config.es.co.HttpHosts;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +36,11 @@ public class ClusterClientConfig {
      */
     @Scope("prototype")
     @Bean(name = "clusterNodeClient", destroyMethod = "close")
-    public RestHighLevelClient clusterNodeClient(){
-        return new RestHighLevelClient(RestClient.builder(httpHosts.getHosts().stream().map(host -> new HttpHost(host.getHost(), host.getPort(), host.getSchema())).toArray(HttpHost[]::new)));
+    public RestHighLevelClient clusterNodeClient() {
+        RestClientBuilder builder = RestClient.builder(httpHosts.getHosts().stream().map(Host::toHttpHost).toArray(HttpHost[]::new))
+                .setRequestConfigCallback(cfgBuilder -> cfgBuilder.setConnectTimeout(httpHosts.getConnectTimeout()          == null ? -1 : httpHosts.getConnectTimeout())
+                                                                  .setSocketTimeout(httpHosts.getSocketTimeout()            == null ? -1 : httpHosts.getSocketTimeout() )
+                                                                  .setConnectionRequestTimeout(httpHosts.getSocketTimeout() == null ? -1 : httpHosts.getSocketTimeout() ));
+        return new RestHighLevelClient(builder);
     }
 }

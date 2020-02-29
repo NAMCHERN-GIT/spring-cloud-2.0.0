@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Date;
 
 /**
@@ -30,9 +31,13 @@ public class ElasticsearchTest {
 
     private RestHighLevelClient client  = null;
     private String bookIndexName        = null;
+    private final static String hostname = "127.0.0.1";
+    private final static Integer port = 9200;
+    private final static String schema = "http";
+
 
     @Before public void init(){
-        client = new RestHighLevelClient(RestClient.builder(new HttpHost("192.168.232.110", 9200, "http")));
+        client = new RestHighLevelClient(RestClient.builder(new HttpHost(hostname, port, schema)));
         bookIndexName = Book.class.getSimpleName().toLowerCase();
     }
 
@@ -44,7 +49,7 @@ public class ElasticsearchTest {
      * 创建索引 书籍
      */
     @Test public void testCreateIndex() throws IOException {
-        if (!existsIndex(bookIndexName))
+        // if (!existsIndex(bookIndexName))
             createIndex(bookIndexName);
     }
 
@@ -54,7 +59,7 @@ public class ElasticsearchTest {
     @Test public void testAddData() throws IOException {
         Book book = new Book().setId("1").setAuthor("罗利民").setBookName("从Docker到Kubernetes入门到实践")
                 .setEditionNumber("2019年9月第一版").setPrice(new BigDecimal("69.00"))
-                .setPublisher("清华大学出版社").setPublicationDate(new Date()).setWordCount(384_000);
+                .setPublisher("清华大学出版社").setPublicationDate(new Date()).setWordCount(384_000).setCreateTime(Instant.now());
         addData(bookIndexName, book);
     }
 
@@ -63,8 +68,8 @@ public class ElasticsearchTest {
      */
     private void createIndex(String index) throws IOException {
         CreateIndexRequest request = new CreateIndexRequest(index);
-        CreateIndexResponse createIndexResponse = client.indices().create(request, RequestOptions.DEFAULT);
-        log.info("create index【{}】,desc:\n{}", index, JSON.toJSONString(createIndexResponse, SerializerFeature.PrettyFormat));
+        CreateIndexResponse response = client.indices().create(request, RequestOptions.DEFAULT);
+        log.info("create index【{}】,desc:\n{}", index, JSON.toJSONString(response, SerializerFeature.PrettyFormat));
     }
 
     /**

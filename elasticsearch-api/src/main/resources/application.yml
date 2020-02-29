@@ -11,9 +11,12 @@ spring:
       enabled: true
 
 elasticsearch-configuration:
+  connect-timeout: -1
+  socket-timeout: -1
+  connection-request-timeout: -1
   hosts:
-    - host: 192.168.232.110
-      port: 9200
+    - port: 9200
       schema: http
+      hostname: 127.0.0.1
 
 
