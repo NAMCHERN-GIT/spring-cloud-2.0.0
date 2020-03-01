@@ -1,7 +1,7 @@
-package com.chennan.cloud.config.es;
+package com.chennan.cloud.es.cfg;
 
-import com.chennan.cloud.config.es.co.Host;
-import com.chennan.cloud.config.es.co.HttpHosts;
+import com.chennan.cloud.es.base.co.Host;
+import com.chennan.cloud.es.base.co.HttpHosts;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;

@@ -1,4 +1,4 @@
-package com.chennan.cloud.config.es.co;
+package com.chennan.cloud.es.base.co;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * ES 连接配置类
+ */
 @Data
 @Component
 @ConfigurationProperties(prefix = "elasticsearch-configuration")

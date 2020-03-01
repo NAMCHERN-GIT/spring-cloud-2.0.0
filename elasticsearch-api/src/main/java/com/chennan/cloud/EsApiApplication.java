@@ -1,6 +1,6 @@
 package com.chennan.cloud;
 
-import com.chennan.cloud.config.es.co.HttpHosts;
+import com.chennan.cloud.es.base.co.HttpHosts;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

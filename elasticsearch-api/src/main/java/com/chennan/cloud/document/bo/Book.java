@@ -1,7 +1,7 @@
 package com.chennan.cloud.document.bo;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.chennan.cloud.base.annotation.Document;
+import com.chennan.cloud.es.base.annotation.Document;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;

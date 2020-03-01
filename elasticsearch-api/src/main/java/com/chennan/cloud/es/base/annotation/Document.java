@@ -1,4 +1,4 @@
-package com.chennan.cloud.base.annotation;
+package com.chennan.cloud.es.base.annotation;
 
 import java.lang.annotation.*;
 

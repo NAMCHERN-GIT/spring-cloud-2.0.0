@@ -1,5 +1,6 @@
 package com.chennan.cloud.es;
 
+import com.chennan.cloud.es.base.vo.Page;
 import com.chennan.cloud.document.bo.Book;
 import com.chennan.cloud.document.dao.BookDao;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +71,12 @@ public class DaoTest {
     public void testDelete() throws IOException {
         boolean flag = bookDao.delete("6");
         Assert.assertTrue("删除id为3的book失败", flag);
+    }
+
+    @Test
+    public void testList() throws IOException {
+        Page<Book> page = bookDao.listPage(1 , 5 );
+        System.out.println(page);
     }
 
 }

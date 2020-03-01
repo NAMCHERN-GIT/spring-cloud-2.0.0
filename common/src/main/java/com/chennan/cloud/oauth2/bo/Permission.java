@@ -13,6 +13,9 @@ import java.util.Date;
 @Accessors(chain = true)
 @TableName("SYS_PERMISSION")
 public class Permission implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @TableId
     private Long permissionId;
     private String method;

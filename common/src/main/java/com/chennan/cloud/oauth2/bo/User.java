@@ -16,22 +16,17 @@ import java.util.List;
 @TableName("SYS_USER")
 public class User implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     @TableId
     private Long userId;
-
     private String name;
-
     private String userName;
-
     private String password;
-
     private String tel;
-
     private String gender;
-
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
-
     @TableField(exist = false)
     private List<Role> roleList;
 }

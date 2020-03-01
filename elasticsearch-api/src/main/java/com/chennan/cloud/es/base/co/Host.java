@@ -1,8 +1,11 @@
-package com.chennan.cloud.config.es.co;
+package com.chennan.cloud.es.base.co;
 
 import lombok.Data;
 import org.apache.http.HttpHost;
 
+/**
+ * 主机信息配置
+ */
 @Data
 public class Host {
     /**
