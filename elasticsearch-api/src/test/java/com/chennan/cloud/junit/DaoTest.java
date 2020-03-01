@@ -1,8 +1,8 @@
-package com.chennan.cloud.es;
+package com.chennan.cloud.junit;
 
 import com.chennan.cloud.es.base.vo.Page;
-import com.chennan.cloud.document.bo.Book;
-import com.chennan.cloud.document.dao.BookDao;
+import com.chennan.cloud.junit.bo.Book;
+import com.chennan.cloud.junit.dao.BookDao;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;

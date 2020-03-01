@@ -1,4 +1,4 @@
-package com.chennan.cloud.document.bo;
+package com.chennan.cloud.junit.bo;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.chennan.cloud.es.base.annotation.Document;

@@ -2,7 +2,7 @@ package com.chennan.cloud.doc;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.chennan.cloud.document.bo.Book;
+import com.chennan.cloud.junit.bo.Book;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.indices.CreateIndexRequest;

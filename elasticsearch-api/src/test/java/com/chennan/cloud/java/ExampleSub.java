@@ -1,6 +1,6 @@
 package com.chennan.cloud.java;
 
-import com.chennan.cloud.document.bo.Book;
+import com.chennan.cloud.junit.bo.Book;
 import org.junit.Test;
 
 public class ExampleSub extends Example<Book> {
