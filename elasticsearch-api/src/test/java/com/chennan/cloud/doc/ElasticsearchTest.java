@@ -49,7 +49,7 @@ public class ElasticsearchTest {
      * 创建索引 书籍
      */
     @Test public void testCreateIndex() throws IOException {
-        // if (!existsIndex(bookIndexName))
+        if (!existsIndex(bookIndexName))
             createIndex(bookIndexName);
     }
 

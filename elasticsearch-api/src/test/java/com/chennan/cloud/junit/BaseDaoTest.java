@@ -5,6 +5,9 @@ import com.chennan.cloud.junit.bo.Book;
 import com.chennan.cloud.junit.dao.BookDao;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,14 +19,26 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class DaoTest {
+public class BaseDaoTest {
 
     @Autowired private BookDao bookDao;
+
+    /**
+     * 测试 RestHighLevelClient 客户端获取
+     */
+    @Test
+    public void testGetClient() throws IOException {
+        RestHighLevelClient client = bookDao.getClient();
+        ClusterHealthRequest request = new ClusterHealthRequest();
+        String clusterName = client.cluster().health(request, RequestOptions.DEFAULT).getClusterName();
+        Assert.assertEquals("anchivasoc", clusterName);
+    }
 
     /**
      * 测试索引是否存在
@@ -57,26 +72,40 @@ public class DaoTest {
         Assert.assertTrue("插入失败!", flag);
     }
 
+    /**
+     * 测试根据id查询文档数据
+     */
     @Test
     public void testGet() throws IOException {
         Optional<Book> bookOptional = bookDao.get("1");
-        if (bookOptional.isPresent()){
-            String author = bookOptional.get().getAuthor();
-            System.out.println(author);
-        }
         Assert.assertTrue(bookOptional.isPresent());
     }
 
+    /**
+     * 测试数据删除
+     */
     @Test
     public void testDelete() throws IOException {
         boolean flag = bookDao.delete("6");
         Assert.assertTrue("删除id为3的book失败", flag);
     }
 
+    /**
+     * 测试 查询文档中的所有数据
+     */
     @Test
     public void testList() throws IOException {
+        List<Book> bookList = bookDao.list();
+        Assert.assertFalse(bookList.isEmpty());
+    }
+
+    /**
+     * 测试分页查询
+     */
+    @Test
+    public void testPage() throws IOException {
         Page<Book> page = bookDao.listPage(1 , 5 );
-        System.out.println(page);
+        Assert.assertNotNull(page.getData());
     }
 
 }

@@ -5,6 +5,7 @@ import com.chennan.cloud.es.base.dao.common.ElasticDao;
 import com.chennan.cloud.es.base.vo.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -23,6 +24,14 @@ import java.util.Optional;
 public abstract class BaseDao<T> extends ElasticDao {
 
     /**
+     * 获取 RestHighLevelClient 客户端
+     * @return RestHighLevelClient
+     */
+    public RestHighLevelClient getClient() {
+        return super.getClient();
+    }
+
+    /**
      * 判断索引是否存在
      */
     public boolean existsIndex() throws IOException {
@@ -39,29 +48,10 @@ public abstract class BaseDao<T> extends ElasticDao {
 
     /**
      * 插入数据
-     * @param index 索引名称
-     * @param t 对象
-     */
-    public boolean insert(String index, T t) throws IOException {
-        return insert(t, index);
-    }
-
-    /**
-     * 插入数据
      * @param t 对象
      */
     public boolean insert(T t) throws IOException {
         return insert(getDefaultIndex(), t);
-    }
-
-    /**
-     * 根据索引和id查询文档
-     * @param index 索引名称
-     * @param id  主键
-     * @return T 返回查询数据
-     */
-    public Optional<T> get(String index, String id) throws IOException {
-        return get(getGetResponse(index, id), getGenericClass());
     }
 
     /**
@@ -70,17 +60,7 @@ public abstract class BaseDao<T> extends ElasticDao {
      * @return T 返回查询数据
      */
     public Optional<T> get(String id) throws IOException {
-        return get(getDefaultIndex(), id);
-    }
-
-    /**
-     * 查询不带条件
-     * @param current   页码
-     * @param size      每页条数
-     * @param index     索引名称
-     */
-    public Page<T> listPage(Integer current, Integer size, String index) throws IOException {
-        return page(getSearchResponse(current, size, index), current, size, getGenericClass());
+        return get(getGetResponse(getDefaultIndex(), id), getGenericClass());
     }
 
     /**
@@ -89,24 +69,15 @@ public abstract class BaseDao<T> extends ElasticDao {
      * @param size      每页条数
      */
     public Page<T> listPage(Integer current, Integer size) throws IOException {
-        return listPage(current, size, getDefaultIndex());
-    }
-
-    /**
-     * 查询索引下的所有数据
-     */
-    public List<T> list(String index) throws IOException {
-        return listPage(null, null, index).getData();
+        return page(getSearchResponse(current, size, getDefaultIndex()), current, size, getGenericClass());
     }
 
     /**
      * 查询实体对应索引下的所有数据
      */
     public List<T> list() throws IOException {
-        return list(getDefaultIndex());
+        return listPage(null, null).getData();
     }
-
-
 
     /**
      * 根据id删除文档
@@ -133,11 +104,14 @@ public abstract class BaseDao<T> extends ElasticDao {
             Document doc = (Document) docOptional.get();
             String index = doc.index();
             String type = doc.type();   // type属性 在es 8.x版本可能要删除
+            if (StringUtils.isNotBlank(index))
+                throw new RuntimeException(String.format("类【%s】的注解【@com.chennan.cloud.es.base.annotation.Document】中 [index]不能为空!", beanClazz.getName()));
             log.info("index is 【{}】，type is 【{}】", index,  type);
             if (StringUtils.isNotBlank(index)) return index;
         }
-        // 默认索引名称,类名称转小写
-        return beanClazz.getSimpleName().toLowerCase();
+        // 默认索引名称,类名称首字母转小写
+        String sampleName = beanClazz.getSimpleName();
+        return sampleName.substring(0,1).toLowerCase().concat(sampleName.substring(1).toLowerCase());
     }
 
     /**

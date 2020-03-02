@@ -50,6 +50,10 @@ public class ElasticDao {
         this.client = client;
     }
 
+    public RestHighLevelClient getClient() {
+        return client;
+    }
+
     /**
      * 判断索引是否存在
      */
@@ -76,10 +80,10 @@ public class ElasticDao {
 
     /**
      * 插入数据
-     * @param obj       实体对象
      * @param index     索引名称
+     * @param obj       实体对象
      */
-    public boolean insert(Object obj, String index) throws IOException {
+    public boolean insert(String index, Object obj) throws IOException {
         return insert(index, JSON.toJSONString(obj));
     }
 
@@ -123,7 +127,15 @@ public class ElasticDao {
     }
 
     /**
-     * 查询不带条件
+     * 查询索引下的所有的文档
+     * @param index 索引名称
+     */
+    public List<JSONObject> listJSONObject(String index) throws IOException {
+        return listPageJSONObject(null, null, index).getData();
+    }
+
+    /**
+     * 查询分页数据
      * @param current   页码
      * @param size      每页条数
      * @param index     索引名称
