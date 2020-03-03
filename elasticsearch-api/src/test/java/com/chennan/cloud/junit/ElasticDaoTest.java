@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -110,6 +111,15 @@ public class ElasticDaoTest {
             JSONObject data = optional.get();
             Assert.assertEquals("罗刚君", data.getString("author"));
         }
+    }
+
+    /**
+     * 测试根据多个id查询文档
+     */
+    @Test
+    public void testMultiGetJSONObject() throws IOException{
+        List<JSONObject> list = elasticDao.multiGetJSONObject("book", Arrays.asList("1001", "1002"));
+        Assert.assertEquals(2, list.size());
     }
 
     /**

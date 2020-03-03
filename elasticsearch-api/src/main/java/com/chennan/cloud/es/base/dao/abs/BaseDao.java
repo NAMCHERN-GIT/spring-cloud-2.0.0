@@ -57,10 +57,19 @@ public abstract class BaseDao<T> extends ElasticDao {
     /**
      * 根据id查询文档
      * @param id  主键
-     * @return T 返回查询数据
+     * @return Optional<T> 返回查询数据
      */
     public Optional<T> get(String id) throws IOException {
         return get(getGetResponse(getDefaultIndex(), id), getGenericClass());
+    }
+
+    /**
+     * 根据多个id查询文档
+     * @param ids id集合
+     * @return List<T>
+     */
+    public List<T> multiGet(List<String> ids) throws IOException {
+        return multiGet(getMultiGetResponse(getDefaultIndex(), ids), getGenericClass());
     }
 
     /**
@@ -82,7 +91,7 @@ public abstract class BaseDao<T> extends ElasticDao {
     /**
      * 根据id删除文档
      * @param id    主键
-     * @return 是否成功
+     * @return      是否成功
      */
     public boolean delete(String id) throws IOException {
         return delete(getDefaultIndex(), id);
@@ -104,7 +113,7 @@ public abstract class BaseDao<T> extends ElasticDao {
             Document doc = (Document) docOptional.get();
             String index = doc.index();
             String type = doc.type();   // type属性 在es 8.x版本可能要删除
-            if (StringUtils.isNotBlank(index))
+            if (StringUtils.isBlank(index))
                 throw new RuntimeException(String.format("类【%s】的注解【@com.chennan.cloud.es.base.annotation.Document】中 [index]不能为空!", beanClazz.getName()));
             log.info("index is 【{}】，type is 【{}】", index,  type);
             if (StringUtils.isNotBlank(index)) return index;

@@ -9,6 +9,8 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.get.MultiGetRequest;
+import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -29,10 +31,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -135,6 +134,16 @@ public class ElasticDao {
     }
 
     /**
+     * 根据索引和多个id查询对应的文档
+     * @param index 索引名称
+     * @param ids   id数组
+     * @return      List<JSONObject>
+     */
+    public List<JSONObject> multiGetJSONObject(String index, List<String> ids) throws IOException {
+        return multiGet(getMultiGetResponse(index, ids), JSONObject.class);
+    }
+
+    /**
      * 查询分页数据
      * @param current   页码
      * @param size      每页条数
@@ -167,6 +176,12 @@ public class ElasticDao {
         return client.get(request, RequestOptions.DEFAULT);
     }
 
+    protected MultiGetResponse getMultiGetResponse(String index, List<String> ids) throws IOException {
+        MultiGetRequest request = new MultiGetRequest();
+        ids.forEach(id -> request.add(index, id));
+        return client.mget(request, RequestOptions.DEFAULT);
+    }
+
     /**
      *  查询 SearchResponse
      * @param current   当前页码
@@ -186,7 +201,7 @@ public class ElasticDao {
     }
 
     /**
-     * 将 GetResponse 转为 Optional
+     * 将 GetResponse结果 转为 Optional
      * @param response GetResponse
      * @param clazz     类型
      * @param <T>       泛型
@@ -194,6 +209,21 @@ public class ElasticDao {
      */
     protected static <T> Optional<T> get(GetResponse response, Class<T> clazz){
         return Optional.ofNullable(response.isExists() ? JSON.parseObject(response.getSourceAsString(), clazz) : null);
+    }
+
+    /**
+     * 将 MultiGetResponse 结果 转为 List<T>
+     * @param itemResponseList MultiGetResponse
+     * @param clazz            类型
+     * @param <T>              泛型
+     * @return                 List<T>
+     */
+    protected static <T> List<T> multiGet(MultiGetResponse itemResponseList, Class<T> clazz){
+        List<T> list = new ArrayList<>();
+        itemResponseList.forEach(item -> {
+            if (item.getResponse().isExists()) list.add(JSON.parseObject(item.getResponse().getSourceAsString(), clazz));
+        });
+        return list;
     }
 
     /**

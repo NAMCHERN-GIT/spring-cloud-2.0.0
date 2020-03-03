@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,6 +80,16 @@ public class BaseDaoTest {
     public void testGet() throws IOException {
         Optional<Book> bookOptional = bookDao.get("1");
         Assert.assertTrue(bookOptional.isPresent());
+    }
+
+    /**
+     * 测试根据多个id查询文档
+     */
+    @Test
+    public void testMultiGet() throws IOException{
+        List<Book> bookList = bookDao.multiGet(Arrays.asList("1001", "1002"));
+        System.out.println(bookList);
+        Assert.assertEquals(2, bookList.size());
     }
 
     /**
