@@ -141,12 +141,37 @@ public class ElasticDaoTest {
     }
 
     /**
+     * 测试查询(带条件) 查询索引下的所有的文档方法
+     */
+    @Test
+    public void testListJSONObjectQuery() throws IOException{
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder queryBuilder = QueryBuilders.matchQuery("author","罗刚君").operator(Operator.OR).fuzziness(Fuzziness.AUTO); //精确匹配
+        boolQueryBuilder.must(queryBuilder);
+        List<JSONObject> data = elasticDao.listJSONObject("book", boolQueryBuilder);
+        log.debug(data.toString());
+        Assert.assertFalse(data.isEmpty());
+    }
+
+    /**
      * 测试 查询分页数据
      */
     @Test
     public void testListPageJSONObject() throws IOException {
         Page<JSONObject> page = elasticDao.listPageJSONObject(1, 5, "book");
         Assert.assertEquals(5, page.getData().size());
+    }
+
+    /**
+     * 测试 查询分页数据
+     */
+    @Test
+    public void testListPageJSONObjectQuery() throws IOException {
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder queryBuilder = QueryBuilders.matchQuery("author","罗刚君").operator(Operator.OR).fuzziness(Fuzziness.AUTO); //精确匹配
+        boolQueryBuilder.must(queryBuilder);
+        Page<JSONObject> page = elasticDao.listPageJSONObject(1, 5, "book", boolQueryBuilder);
+        Assert.assertEquals(2, page.getData().size());
     }
 
     /**

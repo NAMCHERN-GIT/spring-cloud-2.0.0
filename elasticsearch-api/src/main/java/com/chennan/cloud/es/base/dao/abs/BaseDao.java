@@ -6,6 +6,7 @@ import com.chennan.cloud.es.base.vo.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -82,10 +83,26 @@ public abstract class BaseDao<T> extends ElasticDao {
     }
 
     /**
+     * 查询不带条件
+     * @param current   页码
+     * @param size      每页条数
+     */
+    public Page<T> listPage(Integer current, Integer size, BoolQueryBuilder boolQueryBuilder) throws IOException {
+        return page(getSearchResponse(current, size, getDefaultIndex(), boolQueryBuilder), current, size, getGenericClass());
+    }
+
+    /**
      * 查询实体对应索引下的所有数据
      */
     public List<T> list() throws IOException {
         return listPage(null, null).getData();
+    }
+
+    /**
+     * 查询实体对应索引下的所有数据
+     */
+    public List<T> list(BoolQueryBuilder boolQueryBuilder) throws IOException {
+        return listPage(null, null, boolQueryBuilder).getData();
     }
 
     /**
@@ -122,10 +139,10 @@ public abstract class BaseDao<T> extends ElasticDao {
         if (docOptional.isPresent()){
             Document doc = (Document) docOptional.get();
             String index = doc.index(); // 索引名称
-            String type = doc.type();   // type属性 在es 8.x版本可能要删除
+            // String type = doc.type();   // type属性 在es 8.x版本可能要删除
             if (StringUtils.isBlank(index))
                 throw new RuntimeException(String.format("类【%s】的注解【@com.chennan.cloud.es.base.annotation.Document】中 [index]不能为空!", beanClazz.getName()));
-            log.info("index is 【{}】，type is 【{}】", index,  type);
+            // log.info("index is 【{}】，type is 【{}】", index,  type);
             if (StringUtils.isNotBlank(index)) return index;
         }
         // 默认索引名称,类名称首字母转小写

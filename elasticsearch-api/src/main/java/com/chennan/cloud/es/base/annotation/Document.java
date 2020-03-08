@@ -22,6 +22,7 @@ public @interface Document {
     /**
      * 所在的文档 type，elasticsearch type属性 在es 8.x版本可能要删除
      */
+    @Deprecated
     String type() default "";
 
 }

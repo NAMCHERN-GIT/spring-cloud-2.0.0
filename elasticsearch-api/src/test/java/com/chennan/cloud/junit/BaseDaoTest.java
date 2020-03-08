@@ -8,6 +8,11 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.unit.Fuzziness;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -111,11 +116,35 @@ public class BaseDaoTest {
     }
 
     /**
+     * 测试 查询文档中的所有数据
+     */
+    @Test
+    public void testListQuery() throws IOException {
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder queryBuilder = QueryBuilders.matchQuery("author","罗刚君").operator(Operator.OR).fuzziness(Fuzziness.AUTO); //精确匹配
+        boolQueryBuilder.must(queryBuilder);
+        List<Book> bookList = bookDao.list(boolQueryBuilder);
+        Assert.assertFalse(bookList.isEmpty());
+    }
+
+    /**
      * 测试分页查询
      */
     @Test
     public void testPage() throws IOException {
         Page<Book> page = bookDao.listPage(1 , 5 );
+        Assert.assertNotNull(page.getData());
+    }
+
+    /**
+     * 测试分页查询
+     */
+    @Test
+    public void testPageQuery() throws IOException {
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder queryBuilder = QueryBuilders.matchQuery("author","罗刚君").operator(Operator.OR).fuzziness(Fuzziness.AUTO); //精确匹配
+        boolQueryBuilder.must(queryBuilder);
+        Page<Book> page = bookDao.listPage(1 , 5 , boolQueryBuilder);
         Assert.assertNotNull(page.getData());
     }
 

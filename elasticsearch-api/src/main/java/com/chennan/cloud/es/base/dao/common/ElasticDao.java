@@ -2,15 +2,11 @@ package com.chennan.cloud.es.base.dao.common;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.chennan.cloud.es.base.vo.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.get.MultiGetRequest;
-import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.action.get.*;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -20,9 +16,9 @@ import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -65,15 +61,13 @@ public class ElasticDao {
     /**
      * 创建索引
      * @param index 索引名称
-     * @return boolean 创建成功返回true，否则返回false
      */
     public boolean createIndex(String index) throws IOException {
         if (existsIndex(index)){
             log.warn("索引【{}】已存在!", index);
             return false;
         }
-        CreateIndexResponse response = client.indices().create(new CreateIndexRequest(index), RequestOptions.DEFAULT);
-        log.info("create index【{}】,desc:\n{}", index, JSON.toJSONString(response, SerializerFeature.PrettyFormat));
+        client.indices().create(new CreateIndexRequest(index), RequestOptions.DEFAULT);
         return existsIndex(index);
     }
 
@@ -111,15 +105,14 @@ public class ElasticDao {
         IndexRequest request = new IndexRequest(index).id(data.getString("id"));
         request.source(jsonData, XContentType.JSON);
         IndexResponse response = client.index(request, RequestOptions.DEFAULT);
-        log.info("insert index【{}】 data ,desc:\n{}", index, JSON.toJSONString(response, SerializerFeature.PrettyFormat));
         return response.status() == RestStatus.CREATED;
     }
 
     /**
      * 根据索引和id查询文档
      * @param index 索引名称
-     * @param id  主键
-     * @return T 返回查询数据
+     * @param id    主键
+     * @return T    返回查询数据
      */
     public Optional<JSONObject> getJSONObjectById(String index, String id) throws IOException {
         return get(getGetResponseById(index, id), JSONObject.class);
@@ -131,6 +124,15 @@ public class ElasticDao {
      */
     public List<JSONObject> listJSONObject(String index) throws IOException {
         return listPageJSONObject(null, null, index).getData();
+    }
+
+    /**
+     * 查询索引下的所有的文档
+     * @param index             索引名称
+     * @param boolQueryBuilder  查询的封装条件
+     */
+    public List<JSONObject> listJSONObject(String index, BoolQueryBuilder boolQueryBuilder) throws IOException {
+        return listPageJSONObject(null, null, index, boolQueryBuilder).getData();
     }
 
     /**
@@ -154,11 +156,22 @@ public class ElasticDao {
     }
 
     /**
+     * 查询分页数据
+     * @param current           页码
+     * @param size              每页条数
+     * @param index             索引名称
+     * @param boolQueryBuilder  查询的封装条件
+     */
+    public Page<JSONObject> listPageJSONObject(Integer current, Integer size, String index, BoolQueryBuilder boolQueryBuilder) throws IOException {
+        return page(getSearchResponse(current, size, index, boolQueryBuilder), current, size, JSONObject.class);
+    }
+
+    /**
      * 根据id修改文档
-     * @param index 索引名称
-     * @param id    id
+     * @param index  索引名称
+     * @param id     id
      * @param object 数据object
-     * @return      boolean
+     * @return       boolean
      */
     public boolean updateById(String index, String id, Object object) throws IOException {
         JSONObject json = JSON.parseObject(JSON.toJSONString(object));
@@ -187,6 +200,9 @@ public class ElasticDao {
         return client.get(new GetRequest(index, id), RequestOptions.DEFAULT);
     }
 
+    /**
+     * 查询获取 MultiGetResponse 对象
+     */
     protected MultiGetResponse getMultiGetResponse(String index, List<String> ids) throws IOException {
         MultiGetRequest request = new MultiGetRequest();
         ids.forEach(id -> request.add(index, id));
@@ -201,10 +217,23 @@ public class ElasticDao {
      * @return          SearchResponse
      */
     protected SearchResponse getSearchResponse(Integer current, Integer size, String index) throws IOException {
+        return getSearchResponse(current, size, index, null);
+    }
+
+    /**
+     *  查询 SearchResponse
+     * @param current           当前页码
+     * @param size              每页大小
+     * @param index             索引
+     * @param boolQueryBuilder  查询封装builder
+     * @return                  SearchResponse
+     */
+    protected SearchResponse getSearchResponse(Integer current, Integer size, String index, BoolQueryBuilder boolQueryBuilder) throws IOException {
         SearchRequest searchRequest = new SearchRequest(index);
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         /* 当 current 和 size 都不为 null 的时候增加分页查询 */
         if (current != null && size != null) sourceBuilder.from((current - 1) * size).size(size);
+        if (boolQueryBuilder != null)  sourceBuilder.query(boolQueryBuilder);
         /* 默认按照id升序排列，使用“id.keyword”.因为id没有设置 fielddata:true 属性，原因是 text类型字段设置为true太消耗内存了 */
         sourceBuilder.sort(new FieldSortBuilder("id.keyword").order(SortOrder.ASC));
         searchRequest.source(sourceBuilder);
@@ -213,7 +242,7 @@ public class ElasticDao {
 
     /**
      * 将 GetResponse结果 转为 Optional
-     * @param response GetResponse
+     * @param response  GetResponse
      * @param clazz     类型
      * @param <T>       泛型
      * @return          Optional
@@ -223,19 +252,14 @@ public class ElasticDao {
     }
 
     /**
-     * 将 MultiGetResponse 结果 转为 List<T>
+     * 将 MultiGetResponse 结果转为 List<T>
      * @param itemResponseList MultiGetResponse
      * @param clazz            类型
      * @param <T>              泛型
      * @return                 List<T>
      */
     protected static <T> List<T> multiGet(MultiGetResponse itemResponseList, Class<T> clazz){
-        List<T> list = new ArrayList<>();
-        itemResponseList.forEach(item -> {
-            if (item.getResponse().isExists())
-                list.add(JSON.parseObject(item.getResponse().getSourceAsString(), clazz ));
-        });
-        return list;
+        return Arrays.stream(itemResponseList.getResponses()).filter(item -> item.getResponse().isExists()).map(item -> JSON.parseObject(item.getResponse().getSourceAsString(), clazz)).collect(Collectors.toList());
     }
 
     /**
@@ -248,8 +272,7 @@ public class ElasticDao {
      * @return                  Page<T> 分页对象
      */
     protected static <T> Page<T> page(SearchResponse searchResponse , Integer current, Integer size, Class<T> clazz){
-        if (searchResponse.status() != RestStatus.OK )
-            throw new RuntimeException("search error !");
+        if (searchResponse.status() != RestStatus.OK ) throw new RuntimeException("search error !");
         SearchHits searchHits = searchResponse.getHits();
         List<T> data = Arrays.stream(searchHits.getHits()).map(hit -> JSON.parseObject(hit.getSourceAsString(), clazz)).collect(Collectors.toList());
         Page<T> page = new Page<T>().setData(data);
@@ -257,10 +280,10 @@ public class ElasticDao {
             long total = searchHits.getTotalHits().value;
             long pageTotal = total / size ;
             if (total % size > 0) pageTotal ++ ;
-            page.setCurrent(current);   // 当前页
-            page.setSize(size);         // 每页大小
-            page.setTotal(total);
-            page.setPageTotal(pageTotal);
+            page.setCurrent(current);               // 当前页
+            page.setSize(size);                     // 每页大小
+            page.setTotal(total);                   // 总记录数
+            page.setPageTotal(pageTotal);           // 总页数
         }
         return page;
     }
