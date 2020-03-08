@@ -59,8 +59,8 @@ public abstract class BaseDao<T> extends ElasticDao {
      * @param id  主键
      * @return Optional<T> 返回查询数据
      */
-    public Optional<T> get(String id) throws IOException {
-        return get(getGetResponse(getDefaultIndex(), id), getGenericClass());
+    public Optional<T> getById(String id) throws IOException {
+        return get(getGetResponseById(getDefaultIndex(), id), getGenericClass());
     }
 
     /**
@@ -93,8 +93,18 @@ public abstract class BaseDao<T> extends ElasticDao {
      * @param id    主键
      * @return      是否成功
      */
-    public boolean delete(String id) throws IOException {
-        return delete(getDefaultIndex(), id);
+    public boolean deleteById(String id) throws IOException {
+        return deleteById(getDefaultIndex(), id);
+    }
+
+    /**
+     * 通过id修改文档数据
+     * @param id    id
+     * @param t     T
+     * @return      boolean
+     */
+    public boolean updateById(String id, T t) throws IOException {
+        return updateById(getDefaultIndex(), id, t);
     }
 
     /**
@@ -111,7 +121,7 @@ public abstract class BaseDao<T> extends ElasticDao {
         // 若有 @com.chennan.cloud.es.base.annotation.Document 注解，则获取注解里面标注的索引名称
         if (docOptional.isPresent()){
             Document doc = (Document) docOptional.get();
-            String index = doc.index();
+            String index = doc.index(); // 索引名称
             String type = doc.type();   // type属性 在es 8.x版本可能要删除
             if (StringUtils.isBlank(index))
                 throw new RuntimeException(String.format("类【%s】的注解【@com.chennan.cloud.es.base.annotation.Document】中 [index]不能为空!", beanClazz.getName()));

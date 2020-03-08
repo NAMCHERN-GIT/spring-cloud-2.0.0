@@ -31,7 +31,7 @@ public class ElasticsearchTest {
 
     private RestHighLevelClient client  = null;
     private String bookIndexName        = null;
-    private final static String hostname = "127.0.0.1";
+    private final static String hostname = "192.168.232.110";
     private final static Integer port = 9200;
     private final static String schema = "http";
 
@@ -58,7 +58,7 @@ public class ElasticsearchTest {
      */
     @Test public void testAddData() throws IOException {
         Book book = new Book().setId("1").setAuthor("罗利民").setBookName("从Docker到Kubernetes入门到实践")
-                .setEditionNumber("2019年9月第一版").setPrice(new BigDecimal("69.00"))
+                .setEditionNumber("2019年9月第1版").setPrice(new BigDecimal("69.00"))
                 .setPublisher("清华大学出版社").setPublicationDate(new Date()).setWordCount(384_000).setCreateTime(Instant.now());
         addData(bookIndexName, book);
     }

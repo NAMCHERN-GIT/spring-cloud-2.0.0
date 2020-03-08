@@ -7,7 +7,15 @@ import com.chennan.cloud.junit.bo.Book;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.common.unit.Fuzziness;
+import org.elasticsearch.index.query.*;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +30,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -62,7 +71,7 @@ public class ElasticDaoTest {
      */
     @Test
     public void testInsertObject() throws IOException, ParseException {
-        Book book = new Book().setId("1000").setAuthor("葛一鸣/郭超")
+        Book book = new Book().setId("2").setAuthor("葛一鸣/郭超")
                 .setBookName("Java 高并发程序设计").setEditionNumber("2015年11月第1版")
                 .setPrice(new BigDecimal("69.00")).setPublisher("电子工业出版社")
                 .setPublicationDate(DateUtils.parseDate("2017-10-10", "yyyy-MM-dd"))
@@ -77,8 +86,8 @@ public class ElasticDaoTest {
     @Test
     public void testInsertJSONObject() throws IOException, ParseException {
         JSONObject data = new JSONObject();
-        data.fluentPut("id", "1001").fluentPut("author", "翟永超")
-            .fluentPut("bookName", "Spring Cloud 微服务实战").fluentPut("editionNumber", "2017年5月第一版")
+        data.fluentPut("id", "3").fluentPut("author", "翟永超")
+            .fluentPut("bookName", "Spring Cloud 微服务实战").fluentPut("editionNumber", "2017年5月第1版")
             .fluentPut("price", new BigDecimal("89.89")).fluentPut("publisher", "电子工业出版社")
             .fluentPut("publicationDate", DateUtils.parseDate("2018-10-08", "yyyy-MM-dd"))
             .fluentPut("wordCount", 586_1000).put("createTime", Instant.now());
@@ -92,7 +101,7 @@ public class ElasticDaoTest {
     @Test
     public void testInsertJSONObjectString() throws IOException, ParseException {
         JSONObject data = new JSONObject();
-        data.fluentPut("id", "1002").fluentPut("author", "罗刚君")
+        data.fluentPut("id", "4").fluentPut("author", "罗刚君")
                 .fluentPut("bookName", "Excel VBA 程序开发自学宝典").fluentPut("editionNumber", "2014年9月第3版")
                 .fluentPut("price", new BigDecimal("75.00")).fluentPut("publisher", "电子工业出版社")
                 .fluentPut("publicationDate", DateUtils.parseDate("2015-01-04", "yyyy-MM-dd"))
@@ -106,7 +115,7 @@ public class ElasticDaoTest {
      */
     @Test
     public void testGetJSONObject() throws IOException {
-        Optional<JSONObject> optional = elasticDao.getJSONObject("book", "1002");
+        Optional<JSONObject> optional = elasticDao.getJSONObjectById("book", "1002");
         if (optional.isPresent()){
             JSONObject data = optional.get();
             Assert.assertEquals("罗刚君", data.getString("author"));
@@ -145,8 +154,42 @@ public class ElasticDaoTest {
      */
     @Test
     public void testDelete() throws IOException {
-        boolean flag = elasticDao.delete("book", "4");
+        boolean flag = elasticDao.deleteById("book", "4");
         Assert.assertTrue(flag);
+    }
+
+    /**
+     * 测试 更新数据通过id
+     */
+    @Test
+    public void testUpdateById() throws IOException, ParseException {
+        JSONObject data = new JSONObject();
+        data.fluentPut("id", "3").fluentPut("author", "翟永超")
+                .fluentPut("bookName", "Spring Cloud 微服务实战").fluentPut("editionNumber", "2017年5月第1版")
+                .fluentPut("price", new BigDecimal("89.89")).fluentPut("publisher", "电子工业出版社")
+                .fluentPut("publicationDate", DateUtils.parseDate("2018-10-08", "yyyy-MM-dd"))
+                .fluentPut("wordCount", 586_1000).put("createTime", Instant.now());
+        boolean flag = elasticDao.updateById("book", "3", data);
+        Assert.assertTrue(flag);
+    }
+
+    /**
+     * 查询 带条件的查询
+     */
+    @Test
+    public void testSelect() throws IOException {
+        SearchRequest searchRequest = new SearchRequest("book");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder queryBuilder = QueryBuilders.matchQuery("author","罗刚君").operator(Operator.OR).fuzziness(Fuzziness.AUTO); //精确匹配
+        MatchQueryBuilder queryBuilder1 = QueryBuilders.matchQuery("publisher", "清华大学出版社").operator(Operator.OR); // 电子工业出版社
+        boolQueryBuilder.must(queryBuilder).must(queryBuilder1);
+        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.sort(new FieldSortBuilder("id.keyword").order(SortOrder.ASC));
+        searchRequest.source(sourceBuilder);
+        SearchResponse response = elasticDao.getClient().search(searchRequest, RequestOptions.DEFAULT);
+        SearchHits searchHits = response.getHits();
+        Arrays.stream(searchHits.getHits()).forEach(System.out::println);
     }
 
 }

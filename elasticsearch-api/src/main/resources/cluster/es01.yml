@@ -1,0 +1,14 @@
+node.name: es01
+cluster.name: anchivasoc
+network.host: 0.0.0.0
+http.port: 9201
+transport.tcp.port: 9301
+node.master: true
+node.data: true
+cluster.initial_master_nodes: ["es01", "es02", "es03"]
+discovery.seed_hosts: ["es02:9302", "es03:9303"]
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+bootstrap.system_call_filter: false
+bootstrap.memory_lock: true
+indices.fielddata.cache.size: 30%

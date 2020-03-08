@@ -1,0 +1,16 @@
+version: '2'
+services:
+
+  kibana:
+    image: elastic/kibana:7.6.0
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_HOSTS: "http://es01:9200"
+    ports:
+      - 5601:5601
+    networks:
+      - base_elastic
+
+networks:
+  base_elastic:
+    external: true

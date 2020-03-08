@@ -38,7 +38,7 @@ public class BaseDaoTest {
         RestHighLevelClient client = bookDao.getClient();
         ClusterHealthRequest request = new ClusterHealthRequest();
         String clusterName = client.cluster().health(request, RequestOptions.DEFAULT).getClusterName();
-        Assert.assertEquals("anchivasoc", clusterName);
+        Assert.assertEquals("es-docker-cluster", clusterName);
     }
 
     /**
@@ -64,7 +64,7 @@ public class BaseDaoTest {
      */
     @Test
     public void testInsert() throws ParseException, IOException {
-        Book book = new Book().setId("6").setAuthor("陈楠")
+        Book book = new Book().setId("6").setAuthor("阿尔贝·加缪")
                 .setBookName("局外人").setEditionNumber("2019年9月第一版")
                 .setPrice(new BigDecimal("69.00")).setPublisher("中国友谊出版社")
                 .setPublicationDate(DateUtils.parseDate("2019-06-01", "yyyy-MM-dd"))
@@ -78,7 +78,7 @@ public class BaseDaoTest {
      */
     @Test
     public void testGet() throws IOException {
-        Optional<Book> bookOptional = bookDao.get("1");
+        Optional<Book> bookOptional = bookDao.getById("1");
         Assert.assertTrue(bookOptional.isPresent());
     }
 
@@ -87,7 +87,7 @@ public class BaseDaoTest {
      */
     @Test
     public void testMultiGet() throws IOException{
-        List<Book> bookList = bookDao.multiGet(Arrays.asList("1001", "1002"));
+        List<Book> bookList = bookDao.multiGet(Arrays.asList("1", "2"));
         System.out.println(bookList);
         Assert.assertEquals(2, bookList.size());
     }
@@ -97,7 +97,7 @@ public class BaseDaoTest {
      */
     @Test
     public void testDelete() throws IOException {
-        boolean flag = bookDao.delete("6");
+        boolean flag = bookDao.deleteById("6");
         Assert.assertTrue("删除id为3的book失败", flag);
     }
 
@@ -117,6 +117,17 @@ public class BaseDaoTest {
     public void testPage() throws IOException {
         Page<Book> page = bookDao.listPage(1 , 5 );
         Assert.assertNotNull(page.getData());
+    }
+
+    @Test
+    public void testUpdateById() throws ParseException, IOException {
+        Book book = new Book().setId("6").setAuthor("阿尔贝·加缪")
+                .setBookName("局外人").setEditionNumber("2019年9月第1版")
+                .setPrice(new BigDecimal("69.00")).setPublisher("中国友谊出版社")
+                .setPublicationDate(DateUtils.parseDate("2019-06-01", "yyyy-MM-dd"))
+                .setWordCount(166_000).setCreateTime(Instant.now());
+        boolean flag = bookDao.updateById("6", book);
+        Assert.assertTrue(flag);
     }
 
 }

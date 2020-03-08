@@ -15,6 +15,8 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
@@ -57,8 +59,7 @@ public class ElasticDao {
      * 判断索引是否存在
      */
     public boolean existsIndex(String index) throws IOException {
-        GetIndexRequest request = new GetIndexRequest(index);
-        return client.indices().exists(request, RequestOptions.DEFAULT);
+        return client.indices().exists(new GetIndexRequest(index), RequestOptions.DEFAULT);
     }
 
     /**
@@ -71,8 +72,7 @@ public class ElasticDao {
             log.warn("索引【{}】已存在!", index);
             return false;
         }
-        CreateIndexRequest request = new CreateIndexRequest(index);
-        CreateIndexResponse response = client.indices().create(request, RequestOptions.DEFAULT);
+        CreateIndexResponse response = client.indices().create(new CreateIndexRequest(index), RequestOptions.DEFAULT);
         log.info("create index【{}】,desc:\n{}", index, JSON.toJSONString(response, SerializerFeature.PrettyFormat));
         return existsIndex(index);
     }
@@ -121,8 +121,8 @@ public class ElasticDao {
      * @param id  主键
      * @return T 返回查询数据
      */
-    public Optional<JSONObject> getJSONObject(String index, String id) throws IOException {
-        return get(getGetResponse(index, id), JSONObject.class);
+    public Optional<JSONObject> getJSONObjectById(String index, String id) throws IOException {
+        return get(getGetResponseById(index, id), JSONObject.class);
     }
 
     /**
@@ -154,14 +154,26 @@ public class ElasticDao {
     }
 
     /**
+     * 根据id修改文档
+     * @param index 索引名称
+     * @param id    id
+     * @param object 数据object
+     * @return      boolean
+     */
+    public boolean updateById(String index, String id, Object object) throws IOException {
+        JSONObject json = JSON.parseObject(JSON.toJSONString(object));
+        UpdateResponse response = client.update(new UpdateRequest(index, id).doc(json), RequestOptions.DEFAULT);
+        return RestStatus.OK == response.status();
+    }
+
+    /**
      * 根据id和索引删除文档
      * @param index 索引名称
      * @param id    主键
      * @return      是否成功
      */
-    public boolean delete(String index, String id) throws IOException {
-        DeleteRequest request = new DeleteRequest(index, id);
-        DeleteResponse response = client.delete(request, RequestOptions.DEFAULT);
+    public boolean deleteById(String index, String id) throws IOException {
+        DeleteResponse response = client.delete(new DeleteRequest(index, id), RequestOptions.DEFAULT);
         return response.status() == RestStatus.OK;
     }
 
@@ -171,9 +183,8 @@ public class ElasticDao {
      * @param id            id
      * @return              GetResponse
      */
-    protected GetResponse getGetResponse(String index, String id) throws IOException {
-        GetRequest request = new GetRequest(index, id);
-        return client.get(request, RequestOptions.DEFAULT);
+    protected GetResponse getGetResponseById(String index, String id) throws IOException {
+        return client.get(new GetRequest(index, id), RequestOptions.DEFAULT);
     }
 
     protected MultiGetResponse getMultiGetResponse(String index, List<String> ids) throws IOException {
@@ -194,7 +205,7 @@ public class ElasticDao {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         /* 当 current 和 size 都不为 null 的时候增加分页查询 */
         if (current != null && size != null) sourceBuilder.from((current - 1) * size).size(size);
-        /* 默认按照id升序排列，因为id没有设置 fielddata:true 属性，原因是 text类型字段设置为true太消耗内存了 */
+        /* 默认按照id升序排列，使用“id.keyword”.因为id没有设置 fielddata:true 属性，原因是 text类型字段设置为true太消耗内存了 */
         sourceBuilder.sort(new FieldSortBuilder("id.keyword").order(SortOrder.ASC));
         searchRequest.source(sourceBuilder);
         return client.search(searchRequest, RequestOptions.DEFAULT);
@@ -221,7 +232,8 @@ public class ElasticDao {
     protected static <T> List<T> multiGet(MultiGetResponse itemResponseList, Class<T> clazz){
         List<T> list = new ArrayList<>();
         itemResponseList.forEach(item -> {
-            if (item.getResponse().isExists()) list.add(JSON.parseObject(item.getResponse().getSourceAsString(), clazz));
+            if (item.getResponse().isExists())
+                list.add(JSON.parseObject(item.getResponse().getSourceAsString(), clazz ));
         });
         return list;
     }

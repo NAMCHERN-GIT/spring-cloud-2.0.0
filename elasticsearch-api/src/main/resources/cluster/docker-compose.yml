@@ -1,0 +1,60 @@
+version: '2'
+services:
+
+  es01:
+    image: elasticsearch:7.6.0
+    container_name: es01
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /data/docker/container/es/cluster/config/es01.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - /data/esdata/cluster/data:/usr/share/elasticsearch/data
+    ports:
+      - 9201:9201
+      - 9301:9301
+    networks:
+      - elastic
+
+  es02:
+    image: elasticsearch:7.6.0
+    container_name: es02
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /data/docker/container/es/cluster/config/es02.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - /data/esdata/cluster/data:/usr/share/elasticsearch/data
+    ports:
+      - 9202:9202
+      - 9302:9302
+    networks:
+      - elastic
+
+  es03:
+    image: elasticsearch:7.6.0
+    container_name: es03
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /data/docker/container/es/cluster/config/es03.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - /data/esdata/cluster/data:/usr/share/elasticsearch/data
+    ports:
+      - 9203:9203
+      - 9303:9303
+    networks:
+      - elastic
+
+networks:
+  elastic:
+    driver: bridge
