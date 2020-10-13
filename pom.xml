@@ -42,7 +42,7 @@
         <!-- <base.image>java:8</base.image> -->
 
         <!-- 单元测试版本 -->
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
 
         <!-- 工具 -->
         <!-- lombok插件版本 -->
