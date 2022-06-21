@@ -54,7 +54,7 @@
 
         <!-- 数据库 -->
         <!-- mysql 数据库驱动包版本 -->
-        <mysql.version>8.0.17</mysql.version>
+        <mysql.version>8.0.28</mysql.version>
 
         <elasticsearch.version>7.6.0</elasticsearch.version>
 
